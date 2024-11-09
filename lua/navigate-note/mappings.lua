@@ -1,7 +1,11 @@
 local M = {}
-
+local ops = require"navigate-note.ops"
+local options = require"navigate-note.conf".options
 
 function M.setup_main_mappings()
+  -- Key mappings
+  vim.keymap.set("n", options.keymap.add, ops.add_file_line, { noremap = true, silent = true })
+  vim.keymap.set("n", options.keymap.open_nav, ops.switch_nav_md, { noremap = true, silent = true })
 end
 
 
