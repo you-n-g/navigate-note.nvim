@@ -218,7 +218,10 @@ local function open_file_line()
 end
 
 local function get_entry()
-  return string.format("`%s:%d`", vim.fn.expand("%"), vim.fn.line("."))
+  -- Force to use relative path
+  local file_path = vim.fn.expand("%")
+  local relative_path = vim.fn.fnamemodify(file_path, ":.")
+  return string.format("`%s:%d`", relative_path, vim.fn.line("."))
 end
 
 local function write_entry(entry)
