@@ -17,7 +17,7 @@ Here is an example of `nav.md`
 ```
 
 TODOs:
-- [ ] Append to next line
+- [x] Append to next line
 - [ ] Always use relative path
 ]]
 local options = require"navigate-note.conf".options
@@ -28,7 +28,7 @@ local M = {
 }
 
 local api = vim.api
-local nav_md_file = "nav.md"
+local nav_md_file = options.filename
 
 local file_line_pattern = "`([^:`]+):?(%d*)`"
 
@@ -57,6 +57,103 @@ local function get_all_matched(content)
   return matches
 end
 
+local opened_windows = {}
+
+--- 
+---@param contents table list of lines to be displayed in the hover window
+---@param filetype string the file type to be set for the hover window buffer
+---@param duration number duration in milliseconds for which the hover window will be displayed
+---@param hl_linenbr number line number to be highlighted in the hover window (1-based)
+local function create_hover_window(contents, filetype, duration, hl_linenbr)
+  -- Close previously opened windows
+  for _, win in ipairs(opened_windows) do
+    if vim.api.nvim_win_is_valid(win) then
+      vim.api.nvim_win_close(win, true)
+    end
+  end
+  opened_windows = {}
+
+  if duration == nil then
+    duration = 3000
+  end
+  -- Get the current cursor position
+  local row, _ = unpack(vim.api.nvim_win_get_cursor(0))
+  local first_line_number_visible =  vim.fn.line('w0')  -- the first line number visiable in the current window
+
+  -- Create a new buffer for the floating window
+  local buf = vim.api.nvim_create_buf(false, true)
+  -- Set the file type of the buffer
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, contents)
+  vim.api.nvim_buf_set_option(buf, 'filetype', filetype)
+  vim.api.nvim_buf_set_option(buf, 'modifiable', false)
+  vim.api.nvim_buf_set_option(buf, 'wrap', false)
+  -- TODO: highlight the line `hl_linenbr`
+  if hl_linenbr ~= nil then
+    vim.api.nvim_buf_add_highlight(buf, -1, "Visual", hl_linenbr - 1, 0, -1)
+  end
+  -- Calculate the width and height of the floating window
+  local width
+  if type(options.width) == "number" then
+    if options.width < 1 then
+      width = math.floor(vim.api.nvim_win_get_width(0) * options.width)
+    else
+      width = options.width
+    end
+  else
+    width = 120
+  end
+  local height = #contents
+  -- Calculate the position of the floating window
+  local opts = {
+    relative = 'win',  -- Position relative to the current window
+    row = row - first_line_number_visible - (hl_linenbr ~= nil and (hl_linenbr - 1)),  -- Align the box to the current line
+    col = vim.api.nvim_win_get_width(0),  -- Align the box to the right side of the current window
+    width = width,
+    height = height,
+    style = 'minimal',
+    anchor = 'NE',  -- Align the box to the top-left corner of the calculated position
+  }
+  -- Create the floating window
+  local current_hover_win = vim.api.nvim_open_win(buf, false, opts)
+  table.insert(opened_windows, current_hover_win)
+  -- Set up a timer to close the window after the specified duration
+  vim.defer_fn(function()
+    if vim.api.nvim_win_is_valid(current_hover_win) then
+      vim.api.nvim_win_close(current_hover_win, true)
+    end
+  end, duration)
+end
+
+local function goto_cursor(bufnr, match_item)
+  local context_line_count = 3
+  local row, col = match_item[1], match_item[2]
+  api.nvim_win_set_cursor(bufnr, { row, col })
+
+  -- Extract the file path and line number from the match_item
+  local current_line = api.nvim_buf_get_lines(bufnr, row - 1, row, false)[1]
+  local file, line = string.match(current_line, file_line_pattern)
+  if file then
+    -- Open the file in a new buffer
+    local file_bufnr = vim.fn.bufnr(file, true)
+    if file_bufnr == -1 then
+      file_bufnr = vim.fn.bufadd(file)
+    end
+    vim.fn.bufload(file_bufnr)
+
+    if line == "" then
+      -- TODO: set the line to the position last time we close it
+      line = 1
+    end
+
+    -- Get the context of the file and line
+    local context_lines = vim.api.nvim_buf_get_lines(file_bufnr, math.max(0, tonumber(line) - context_line_count), tonumber(line) + context_line_count - 1, false)
+    -- Create a hover window to show the context of the file and line
+    create_hover_window(context_lines, vim.bo[file_bufnr].filetype, 3000, math.max(1, #context_lines - 2))
+  else
+    print("No valid file:line pattern found in match_item")
+  end
+end
+
 local function navigate_to_next(reverse)
   local cursor_pos = api.nvim_win_get_cursor(0)
 
@@ -74,27 +171,27 @@ local function navigate_to_next(reverse)
     for i = #matches, 1, -1 do
       local match = matches[i]
       if match[1] < cursor_pos[1] or match[1] == cursor_pos[1] and cursor_pos[2] > match[3] then
-        api.nvim_win_set_cursor(0, { match[1], match[2] })
+        goto_cursor(0, match)
         found = true
         break
       end
     end
 
     if not found then
-      api.nvim_win_set_cursor(0, { matches[#matches][1], matches[#matches][2] })
+      goto_cursor(0, matches[#matches])
     end
   else
     -- Find the next match
     for _, match in ipairs(matches) do
       if match[1] > cursor_pos[1] or match[1] == cursor_pos[1] and cursor_pos[2] < match[2] then
-        api.nvim_win_set_cursor(0, { match[1], match[2] })
+        goto_cursor(0, match)
         found = true
         break
       end
     end
 
     if not found then
-      api.nvim_win_set_cursor(0, { matches[1][1], matches[1][2] })
+      goto_cursor(0, matches[1])
     end
   end
 end
@@ -109,7 +206,6 @@ local function open_file_line()
   -- match pattern like `src/utils.py:40` or `src/utils.py`
   local file, line = string.match(current_line, file_line_pattern)
   if file then
-    P(file)
     api.nvim_command("edit " .. file)
     if line and line ~= "" then
       api.nvim_win_set_cursor(0, { tonumber(line), 0 })
@@ -263,6 +359,7 @@ local function enter_nav_mode()
   vim.keymap.set("n", options.keymap["nav_mode"].prev, navigate_to_prev, { noremap = true, silent = true, buffer = true })
   vim.keymap.set("n", options.keymap["nav_mode"].open, open_file_line, { noremap = true, silent = true, buffer = true })
   vim.keymap.set("n", options.keymap["nav_mode"].switch_back, M.switch_nav_md, { noremap = true, silent = true, buffer = true })
+  vim.api.nvim_set_option_value('wrap', false, { scope = 'local' })  -- Disable line wrapping in nav-mode; position calcuation in wrapping mode is not accurate
 
   if M.last_entry ~= "" then
     onetime_keymap(options.keymap["nav_mode"]._tmp_.append_link, write_entry, update_winbar_text)
