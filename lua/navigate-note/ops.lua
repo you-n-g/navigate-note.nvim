@@ -18,7 +18,7 @@ Here is an example of `nav.md`
 
 TODOs:
 - [x] Append to next line
-- [ ] Always use relative path
+- [x] Always use relative path
 ]]
 local options = require"navigate-note.conf".options
 
