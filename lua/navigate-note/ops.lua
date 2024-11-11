@@ -84,9 +84,8 @@ local function create_hover_window(contents, filetype, duration, hl_linenbr)
   local buf = vim.api.nvim_create_buf(false, true)
   -- Set the file type of the buffer
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, contents)
-  vim.api.nvim_buf_set_option(buf, 'filetype', filetype)
-  vim.api.nvim_buf_set_option(buf, 'modifiable', false)
-  vim.api.nvim_buf_set_option(buf, 'wrap', false)
+  vim.api.nvim_set_option_value('filetype', filetype, {buf=buf})
+  vim.api.nvim_set_option_value('modifiable', false, {buf=buf})
   -- TODO: highlight the line `hl_linenbr`
   if hl_linenbr ~= nil then
     vim.api.nvim_buf_add_highlight(buf, -1, "Visual", hl_linenbr - 1, 0, -1)
@@ -115,6 +114,7 @@ local function create_hover_window(contents, filetype, duration, hl_linenbr)
   }
   -- Create the floating window
   local current_hover_win = vim.api.nvim_open_win(buf, false, opts)
+  vim.api.nvim_set_option_value('wrap', false, {win=current_hover_win})
   table.insert(opened_windows, current_hover_win)
   -- Set up a timer to close the window after the specified duration
   vim.defer_fn(function()
