@@ -42,6 +42,9 @@ MOTIVATION OF THE PLUGIN*navigate-note-navigate-note-motivation-of-the-plugin*
 ==============================================================================
 4. TODO                                                   *navigate-note-todo*
 
+- Bug:
+    - ☐ Do not override the previous filename
+
 
 ==============================================================================
 5. Development                                     *navigate-note-development*
