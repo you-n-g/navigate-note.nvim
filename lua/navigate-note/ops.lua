@@ -101,7 +101,7 @@ local function create_hover_window(contents, filetype, duration, hl_linenbr)
   else
     width = 120
   end
-  local height = #contents
+  local height = math.max(#contents, 1)
   -- Calculate the position of the floating window
   local opts = {
     relative = 'win',  -- Position relative to the current window
@@ -200,12 +200,41 @@ local function navigate_to_prev()
   navigate_to_next(true)
 end
 
+
+local jumpbackward = function(num)
+  vim.cmd([[execute "normal! ]] .. tostring(num) .. [[\<c-o>"]])
+end
+
+function M.backward()
+  local getjumplist = vim.fn.getjumplist()
+  local jumplist = getjumplist[1]
+  if #jumplist == 0 then
+    return
+  end
+
+  -- plus one because of one index
+  local i = getjumplist[2] + 1
+  local j = i
+  local curBufNum = vim.fn.bufnr()
+  local targetBufNum = curBufNum
+
+  while j > 1 and (curBufNum == targetBufNum or not vim.api.nvim_buf_is_valid(targetBufNum)) do
+    j = j - 1
+    targetBufNum = jumplist[j].bufnr
+  end
+  if targetBufNum ~= curBufNum and vim.api.nvim_buf_is_valid(targetBufNum) then
+    jumpbackward(i - j)
+  end
+end
+
+
 -- Function to open the file and line under cursor
 local function open_file_line()
   local current_line = api.nvim_get_current_line()
   -- match pattern like `src/utils.py:40` or `src/utils.py`
   local file, line = string.match(current_line, file_line_pattern)
   if file then
+    M.backward() --- it is the key to popup the `nav_md_file` from the jumplist
     api.nvim_command("edit " .. file)
     if line and line ~= "" then
       api.nvim_win_set_cursor(0, { tonumber(line), 0 })
@@ -273,6 +302,7 @@ function M.add_file_line()
   write_entry(entry)
 end
 
+
 -- Function to open nav.md
 function M.switch_nav_md()
   M.last_entry = get_entry()
@@ -281,6 +311,17 @@ function M.switch_nav_md()
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-^>", true, false, true), "n", true)
   else
     vim.cmd("edit " .. nav_md_file)
+
+    -- Maybe nofile buffer will have advantage.. But I'm not sure
+    -- local buf = vim.api.nvim_create_buf(false, true)
+    -- -- Set buffer options to make it a scratch buffer
+    -- vim.api.nvim_buf_set_option(buf, 'buftype', 'nofile')
+    -- vim.api.nvim_buf_set_option(buf, 'bufhidden', 'hide')
+    -- vim.api.nvim_buf_set_option(buf, 'filetype', 'markdown')
+    -- vim.api.nvim_buf_set_option(buf, 'swapfile', false)
+    -- -- Open the buffer in a new window
+    -- vim.api.nvim_set_current_buf(buf)
+    -- vim.cmd("0r " .. nav_md_file)  -- Read the content of nav.md into the buffer
   end
 end
 
