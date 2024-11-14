@@ -21,6 +21,7 @@ TODOs:
 - [x] Always use relative path
 ]]
 local options = require"navigate-note.conf".options
+local utils = require"navigate-note.utils"
 
 local M = {
   last_entry = "",
@@ -201,32 +202,6 @@ local function navigate_to_prev()
 end
 
 
-local jumpbackward = function(num)
-  vim.cmd([[execute "normal! ]] .. tostring(num) .. [[\<c-o>"]])
-end
-
-function M.backward()
-  local getjumplist = vim.fn.getjumplist()
-  local jumplist = getjumplist[1]
-  if #jumplist == 0 then
-    return
-  end
-
-  -- plus one because of one index
-  local i = getjumplist[2] + 1
-  local j = i
-  local curBufNum = vim.fn.bufnr()
-  local targetBufNum = curBufNum
-
-  while j > 1 and (curBufNum == targetBufNum or not vim.api.nvim_buf_is_valid(targetBufNum)) do
-    j = j - 1
-    targetBufNum = jumplist[j].bufnr
-  end
-  if targetBufNum ~= curBufNum and vim.api.nvim_buf_is_valid(targetBufNum) then
-    jumpbackward(i - j)
-  end
-end
-
 
 -- Function to open the file and line under cursor
 local function open_file_line()
@@ -234,7 +209,7 @@ local function open_file_line()
   -- match pattern like `src/utils.py:40` or `src/utils.py`
   local file, line = string.match(current_line, file_line_pattern)
   if file then
-    M.backward() --- it is the key to popup the `nav_md_file` from the jumplist
+    utils.backward() --- it is the key to popup the `nav_md_file` from the jumplist
     api.nvim_command("edit " .. file)
     if line and line ~= "" then
       api.nvim_win_set_cursor(0, { tonumber(line), 0 })
@@ -308,7 +283,15 @@ function M.switch_nav_md()
   M.last_entry = get_entry()
   if vim.fn.expand("%:t") == "nav.md" then
     -- If we are already in nav.md, go to the previous file by pressing "<C-^>"
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-^>", true, false, true), "n", true)
+    -- vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-^>", true, false, true), "n", true)
+
+    -- make sure jumping into `nav_md_file` does affect `C-^`
+    utils.backward()  -- use backword to revert the jumplist
+    local cur_buf = vim.api.nvim_get_current_buf()
+    utils.backward()
+    if cur_buf ~= vim.api.nvim_get_current_buf() then
+      utils.forward()
+    end
   else
     vim.cmd("edit " .. nav_md_file)
 
