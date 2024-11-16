@@ -11,7 +11,7 @@ local M = {
 				switch_back = "<m-h>",
 				-- preview = "K",
 				_tmp_ = {
-					append_link = "p",  -- past will more align with the meaning
+					append_link = "<m-p>",  -- past will more align with the meaning
 				},
 			},
 			add = "<localleader>na",
