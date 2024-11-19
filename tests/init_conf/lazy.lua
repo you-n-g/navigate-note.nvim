@@ -21,6 +21,7 @@ local plugins = {
     "you-n-g/navigate-note.nvim",
     dependencies = {
     },
+    config=true,
   },
 }
 
