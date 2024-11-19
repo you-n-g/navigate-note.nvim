@@ -3,12 +3,12 @@ This is a vim plugin.
 
 When we enter a file named `nav.md`, it will switch into nav-mode in the buffer.
 You will navigate to the next `file:line` pattern in the `nav.md` when I press <tab>.
-When I press <enter> when I'm on `file:line`, enter the according file and line.
+When I press <m-cr> when I'm on `file:line`, enter the according file and line.
 It will leave the nav-mode if I leave the buffer.
 
 When I'm not in nav-mode, `<localleader>na` will add a new line `file:line` (i.e. the position of current file) into the file `nav.md`.
 
-`<localleader>nn` will open the `nav.md`.
+`<m-h>` will open the `nav.md`. Then use `<m-p>` to add the position you are just from into the `nav.md`. (It is the more commanded way to add link into files)
 
 Here is an example of `nav.md`
 ```markdown
