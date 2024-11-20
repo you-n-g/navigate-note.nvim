@@ -372,7 +372,7 @@ local function update_extmark()
     if i > 9 then
       break
     end
-    vim.api.nvim_buf_set_extmark(bufnr, NAV_LINK_NS, match[1] - 1, match[3], {
+    vim.api.nvim_buf_set_extmark(bufnr, NAV_LINK_NS, match[1] - 1, match[3] + 1, {
       virt_text = { { string.format("🎹[%d]", i), "Comment" } },
       virt_text_pos = "inline",
     })

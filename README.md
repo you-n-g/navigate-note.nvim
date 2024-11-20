@@ -4,7 +4,7 @@
 [![Neovim Version](https://img.shields.io/badge/Neovim-0.8%2B-blue.svg)](https://neovim.io)
 
 ## Plugin Motivation
-Navigating through project files and understanding them by taking notes is a crucial task for developers. While there are many tools available for navigation, such as [arrow.nvim](https://github.com/author/arrow.nvim) and [harpoon](https://github.com/ThePrimeagen/harpoon), they often lack integrated note-taking capabilities aligned with navigation.
+Navigating through project files and understanding them by taking notes is a crucial task for developers. While there are many tools available for navigation, such as [arrow.nvim](https://github.com/otavioschwanck/arrow.nvim) and [harpoon](https://github.com/ThePrimeagen/harpoon), they often lack integrated note-taking capabilities aligned with navigation.
 `navigate-note.nvim` aims to bridge this gap.
 
 ## Design Philosophy
@@ -32,5 +32,5 @@ Contributions to this project are welcome. You can test the plugin with a minima
 - `vim -u tests/init_conf/lazy.lua -U NONE -N -i NONE` for [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ## Related Projects
-- [arrow.nvim](https://github.com/author/arrow.nvim): A navigation tool for Neovim.
+- [arrow.nvim](https://github.com/otavioschwanck/arrow.nvim): A navigation tool for Neovim.
 - [harpoon](https://github.com/ThePrimeagen/harpoon): Another navigation tool for Neovim.
