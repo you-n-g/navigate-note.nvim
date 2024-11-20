@@ -12,8 +12,8 @@ When I'm not in nav-mode, `<localleader>na` will add a new line `file:line` (i.e
 
 Here is an example of `nav.md`
 ```markdown
-- `start.sh:30`:  the entrance of the project
-- `src/utils.py:40`: important utils
+- [[start.sh:30]\]:  the entrance of the project
+- [[src/utils.py:40]\]: important utils
 ```
 
 TODOs:
@@ -31,7 +31,7 @@ local M = {
 local api = vim.api
 local nav_md_file = options.filename
 
-local file_line_pattern = "`([^:`]+):?(%d*)`"
+local file_line_pattern = "%[%[([^:%]]+):?(%d*)%]%]"
 
 -- Function to return all {line_number, start_pos, end_pos} in appearing order
 local function get_all_matched(content)
@@ -225,7 +225,7 @@ local function get_entry()
   -- Force to use relative path
   local file_path = vim.fn.expand("%")
   local relative_path = vim.fn.fnamemodify(file_path, ":.")
-  return string.format("`%s:%d`", relative_path, vim.fn.line("."))
+  return string.format("[[%s:%d]]", relative_path, vim.fn.line("."))
 end
 
 local function write_entry(entry)
