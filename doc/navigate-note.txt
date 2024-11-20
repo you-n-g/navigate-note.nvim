@@ -24,10 +24,10 @@ PLUGIN MOTIVATION         *navigate-note-navigate-note.nvim-plugin-motivation*
 
 Navigating through project files and understanding them by taking notes is a
 crucial task for developers. While there are many tools available for
-navigation, such as arrow.nvim <https://github.com/author/arrow.nvim> and
-harpoon <https://github.com/ThePrimeagen/harpoon>, they often lack integrated
-note-taking capabilities aligned with navigation. `navigate-note.nvim` aims to
-bridge this gap.
+navigation, such as arrow.nvim <https://github.com/otavioschwanck/arrow.nvim>
+and harpoon <https://github.com/ThePrimeagen/harpoon>, they often lack
+integrated note-taking capabilities aligned with navigation.
+`navigate-note.nvim` aims to bridge this gap.
 
 
 DESIGN PHILOSOPHY         *navigate-note-navigate-note.nvim-design-philosophy*
@@ -68,7 +68,7 @@ NONE` for lazy.nvim <https://github.com/folke/lazy.nvim>
 
 RELATED PROJECTS           *navigate-note-navigate-note.nvim-related-projects*
 
-- arrow.nvim <https://github.com/author/arrow.nvim>: A navigation tool for Neovim.
+- arrow.nvim <https://github.com/otavioschwanck/arrow.nvim>: A navigation tool for Neovim.
 - harpoon <https://github.com/ThePrimeagen/harpoon>: Another navigation tool for Neovim.
 
 ==============================================================================
