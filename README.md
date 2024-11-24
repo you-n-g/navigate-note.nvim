@@ -23,6 +23,7 @@ Navigating through project files and understanding them by taking notes is a cru
 
 ## Demo
 <!-- Add demo content here -->
+    A demo showcasing how to use the plugin will be available soon. If you're eager to try it out, simply press `<m-h>` (for example, `alt+h`) to launch the plugin.
 
 ## Advanced Setup
 ```lua
