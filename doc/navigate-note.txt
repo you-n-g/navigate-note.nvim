@@ -1,4 +1,4 @@
-*navigate-note.txt*        For NVIM v0.8.0       Last change: 2024 November 20
+*navigate-note.txt*        For NVIM v0.8.0       Last change: 2024 November 24
 
 ==============================================================================
 Table of Contents                            *navigate-note-table-of-contents*
@@ -8,6 +8,7 @@ Table of Contents                            *navigate-note-table-of-contents*
   - Design Philosophy     |navigate-note-navigate-note.nvim-design-philosophy|
   - Installation               |navigate-note-navigate-note.nvim-installation|
   - Demo                               |navigate-note-navigate-note.nvim-demo|
+  - Advanced Setup           |navigate-note-navigate-note.nvim-advanced-setup|
   - TODO                               |navigate-note-navigate-note.nvim-todo|
   - Development                 |navigate-note-navigate-note.nvim-development|
   - Related Projects       |navigate-note-navigate-note.nvim-related-projects|
@@ -44,6 +45,7 @@ INSTALLATION                   *navigate-note-navigate-note.nvim-installation*
     -- Lazy.nvim
     {
       "you-n-g/navigate-note.nvim",
+      config=true,
       dependencies = {
       },
     }
@@ -51,6 +53,23 @@ INSTALLATION                   *navigate-note-navigate-note.nvim-installation*
 
 
 DEMO                                   *navigate-note-navigate-note.nvim-demo*
+
+
+ADVANCED SETUP               *navigate-note-navigate-note.nvim-advanced-setup*
+
+>lua
+    -- Lazy.nvim
+    {
+      "you-n-g/navigate-note.nvim",
+      opts = {
+      }
+    }
+<
+
+More detailed configuration <lua/navigate-note/conf.lua> are listed here. You
+can find my latest and preferred configuration here
+<https://github.com/you-n-g/deploy/blob/master/configs/lazynvim/lua/plugins/navigating.lua>
+as an example.
 
 
 TODO                                   *navigate-note-navigate-note.nvim-todo*
@@ -61,9 +80,14 @@ TODO                                   *navigate-note-navigate-note.nvim-todo*
 
 DEVELOPMENT                     *navigate-note-navigate-note.nvim-development*
 
-Contributions to this project are welcome. You can test the plugin with a
-minimal configuration using: - `vim -u tests/init_conf/lazy.lua -U NONE -N -i
-NONE` for lazy.nvim <https://github.com/folke/lazy.nvim>
+Contributions to this project are welcome.
+
+You can test the plugin in UI with minimal config with - `vim -u
+tests/init_conf/lazy.lua -U NONE -N -i NONE` for lazy.nvim
+<https://github.com/folke/lazy.nvim>
+
+If you prefer to run tests without a user interface, you can execute `make
+test` to initiate the test suite.
 
 
 RELATED PROJECTS           *navigate-note-navigate-note.nvim-related-projects*
