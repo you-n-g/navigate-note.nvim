@@ -15,6 +15,7 @@ Navigating through project files and understanding them by taking notes is a cru
 -- Lazy.nvim
 {
   "you-n-g/navigate-note.nvim",
+  config=true,
   dependencies = {
   },
 }
@@ -23,13 +24,31 @@ Navigating through project files and understanding them by taking notes is a cru
 ## Demo
 <!-- Add demo content here -->
 
+## Advanced Setup
+```lua
+-- Lazy.nvim
+{
+  "you-n-g/navigate-note.nvim",
+  opts = {
+  }
+}
+```
+
+More detailed [configuration](lua/navigate-note/conf.lua) are listed here.
+You can find my latest and preferred configuration [here](https://github.com/you-n-g/deploy/blob/master/configs/lazynvim/lua/plugins/navigating.lua) as an example.
+
+
 ## TODO
 - Bug:
   - [ ] Do not override the previous filename
 
 ## Development
-Contributions to this project are welcome. You can test the plugin with a minimal configuration using:
+Contributions to this project are welcome.
+
+You can test the plugin in UI with minimal config with
 - `vim -u tests/init_conf/lazy.lua -U NONE -N -i NONE` for [lazy.nvim](https://github.com/folke/lazy.nvim)
+
+If you prefer to run tests without a user interface, you can execute `make test` to initiate the test suite.
 
 ## Related Projects
 - [arrow.nvim](https://github.com/otavioschwanck/arrow.nvim): A navigation tool for Neovim.

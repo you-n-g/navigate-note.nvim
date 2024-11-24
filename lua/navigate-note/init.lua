@@ -3,7 +3,7 @@ local M = {}
 
 function M.setup(options)
   require"navigate-note.conf".setup(options)
-  require"navigate-note.mappings".setup()
+  require"navigate-note.keymaps".setup()
 end
 
 
