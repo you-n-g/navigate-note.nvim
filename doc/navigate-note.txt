@@ -76,6 +76,8 @@ TODO                                   *navigate-note-navigate-note.nvim-todo*
 
 - Bug:
     - ☐ Do not override the previous filename
+- UI:
+    - ☐ Detailed README
 
 
 DEVELOPMENT                     *navigate-note-navigate-note.nvim-development*
