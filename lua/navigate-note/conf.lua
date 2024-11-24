@@ -11,6 +11,9 @@ local M = {
 				switch_back = "<m-h>",
 				-- tmp keymap
 				append_link = "<m-p>", -- past will more align with the meaning
+
+        -- mode switching
+        jump_mode = "<m-l>",
 			},
 			add = "<localleader>na",
 			open_nav = "<m-h>",

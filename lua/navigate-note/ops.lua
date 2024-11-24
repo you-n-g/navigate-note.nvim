@@ -16,6 +16,7 @@ Here is an example of `nav.md`
 - [[src/utils.py:40]\]: important utils
 ```
 
+
 TODOs:
 - [x] Append to next line
 - [x] Always use relative path
@@ -27,6 +28,13 @@ local utils = require"navigate-note.utils"
 local M = {
   last_entry = "",
   active_keymap = {},
+  mode = {
+    jump = "file",  -- Options: "file" or "line"
+  },
+}
+local mode_display_map = {
+  file = '📋',
+  line = '🎯',
 }
 
 local api = vim.api
@@ -212,7 +220,7 @@ local function open_file_line()
   if file then
     utils.backward() --- it is the key to popup the `nav_md_file` from the jumplist
     api.nvim_command("edit " .. file)
-    if line and line ~= "" then
+    if M.mode.jump == "line" and line and line ~= "" then
       api.nvim_win_set_cursor(0, { tonumber(line), 0 })
     else
       print("Opened file: " .. file .. " (no specific line number provided)")
@@ -323,6 +331,9 @@ local function onetime_keymap(key, func, callback)
 end
 
 local function render_winbar_text()
+
+  local mode_text = mode_display_map[M.mode.jump]
+  -- "%#Normal#%=%#AvanteReversedTitle#%#AvanteTitle#󰭻 Avante%#AvanteReversedTitle#%#Normal#%="
   -- render all keymap in conf.keymap.nav_mode
   -- only include active keymap in active_keymap and persistent key map
   local title = "🎹:"
@@ -345,7 +356,7 @@ local function render_winbar_text()
     end
   end
 
-  return title
+  return mode_text .. "|" .. title
 end
 
 local update_winbar_text = function()
@@ -376,25 +387,50 @@ local function update_extmark()
       break
     end
     vim.api.nvim_buf_set_extmark(bufnr, NAV_LINK_NS, match[1] - 1, match[3] + 1, {
-      virt_text = { { string.format("🎹[%d]", i), "Comment" } },
+      virt_text = { { string.format("%s[%d]", mode_display_map[M.mode.jump], i), "Comment" } },
       virt_text_pos = "inline",
     })
   end
 end
 
+local match_id = nil  -- Variable to store the match ID
+
+local function jump_mode_toggle(mode)
+  -- TODO: it does not work when work with  `render-markdown.nvim` when concealing is enabled
+  if mode == nil and M.mode.jump == "file" or mode == "line" then
+    M.mode.jump = "line"
+    -- Delete the matchadd when toggling to "line" mode
+    if match_id then
+      vim.fn.matchdelete(match_id)
+      match_id = nil
+    end
+  else
+    M.mode.jump = "file"
+    -- Add `:40` in [[src/utils.py:40]] to @comment highlight group in nav_mode
+    -- Just highlight the line number, do not highlight the file path
+    -- Use zero-width assertion to make the match more exact
+    match_id = vim.fn.matchadd('Comment', [=[\v\[\[[^:]+:\zs\d+\ze\]\]]=], 100)
+  end
+  update_winbar_text()
+  update_extmark()
+end
+
 -- Function to enter nav-mode
 local function enter_nav_mode()
-  update_extmark()
   vim.keymap.set("n", options.keymaps["nav_mode"].next, navigate_to_next, { noremap = true, silent = true, buffer = true })
   vim.keymap.set("n", options.keymaps["nav_mode"].prev, navigate_to_prev, { noremap = true, silent = true, buffer = true })
   vim.keymap.set("n", options.keymaps["nav_mode"].open, open_file_line, { noremap = true, silent = true, buffer = true })
+  vim.keymap.set("n", options.keymaps["nav_mode"].jump_mode, jump_mode_toggle, { noremap = true, silent = true, buffer = true })
   vim.keymap.set("n", options.keymaps["nav_mode"].switch_back, M.switch_nav_md, { noremap = true, silent = true, buffer = true })
   vim.api.nvim_set_option_value('wrap', false, { scope = 'local' })  -- Disable line wrapping in nav-mode; position calcuation in wrapping mode is not accurate
 
   if M.last_entry ~= "" then
     onetime_keymap(options.keymaps["nav_mode"].append_link, write_entry, update_winbar_text)
   end
-  update_winbar_text()
+  jump_mode_toggle(M.mode.jump)
+  -- toggle will automatically run following updates
+  -- update_extmark()
+  -- update_winbar_text()
 
   -- Map 1, 2, 3, ..., 9 to open the i-th link in nav.md
   for i = 1, 9 do

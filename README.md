@@ -41,6 +41,8 @@ You can find my latest and preferred configuration [here](https://github.com/you
 ## TODO
 - Bug:
   - [ ] Do not override the previous filename
+- UI:
+  - [ ] Detailed README
 
 ## Development
 Contributions to this project are welcome.
