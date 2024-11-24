@@ -54,6 +54,10 @@ INSTALLATION                   *navigate-note-navigate-note.nvim-installation*
 
 DEMO                                   *navigate-note-navigate-note.nvim-demo*
 
+>
+    A demo showcasing how to use the plugin will be available soon. If you're eager to try it out, simply press `<m-h>` (for example, `alt+h`) to launch the plugin.
+<
+
 
 ADVANCED SETUP               *navigate-note-navigate-note.nvim-advanced-setup*
 
