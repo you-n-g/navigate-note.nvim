@@ -3,22 +3,31 @@ local M = {
 	defaults = {
 		filename = "nav.md",
 		width = 0.6,
-		keymap = {
+		keymaps = {
 			nav_mode = {
 				next = "<tab>",
 				prev = "<s-tab>",
 				open = "<m-cr>",
 				switch_back = "<m-h>",
-				-- preview = "K",
-				_tmp_ = {
-					append_link = "<m-p>",  -- past will more align with the meaning
-				},
+				-- tmp keymap
+				append_link = "<m-p>", -- past will more align with the meaning
 			},
 			add = "<localleader>na",
 			open_nav = "<m-h>",
 		},
 	},
 }
+
+M.TMP_KEYMAP = { "append_link" } -- this keymap will only work for once
+
+function M.is_tmp_keymap(key)
+	for _, v in pairs(M.TMP_KEYMAP) do
+		if key == v then
+			return true
+		end
+	end
+	return false
+end
 
 function M.setup(options)
 	options = options or {}

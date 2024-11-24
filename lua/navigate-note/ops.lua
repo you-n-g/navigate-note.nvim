@@ -20,7 +20,8 @@ TODOs:
 - [x] Append to next line
 - [x] Always use relative path
 ]]
-local options = require"navigate-note.conf".options
+local conf = require"navigate-note.conf"
+local options = conf.options
 local utils = require"navigate-note.utils"
 
 local M = {
@@ -323,21 +324,23 @@ end
 
 local function render_winbar_text()
   -- render all keymap in conf.keymap.nav_mode
-  -- only include active _tmp_ keymap in active_keymap and persistent key map
+  -- only include active keymap in active_keymap and persistent key map
   local title = "🎹:"
 
   -- Include persistent keymaps
-  for name, key in pairs(options.keymap["nav_mode"]) do
-    if name ~= "_tmp_" then
+  for name, key in pairs(options.keymaps["nav_mode"]) do
+    if not conf.is_tmp_keymap(name) then
       title = title .. " " .. string.format("(%s)%s", key, name)
     end
   end
 
   -- Include active temporary keymaps
-  for name, key in pairs(options.keymap["nav_mode"]._tmp_) do
-    for a_key, _ in pairs(M.active_keymap) do
-      if a_key == key then
-        title = title .. " " .. string.format("(%s)%s", key, name)
+  for name, key in pairs(options.keymaps["nav_mode"]) do
+    if conf.is_tmp_keymap(name) then
+      for a_key, _ in pairs(M.active_keymap) do
+        if a_key == key then
+          title = title .. " " .. string.format("(%s)%s", key, name)
+        end
       end
     end
   end
@@ -382,14 +385,14 @@ end
 -- Function to enter nav-mode
 local function enter_nav_mode()
   update_extmark()
-  vim.keymap.set("n", options.keymap["nav_mode"].next, navigate_to_next, { noremap = true, silent = true, buffer = true })
-  vim.keymap.set("n", options.keymap["nav_mode"].prev, navigate_to_prev, { noremap = true, silent = true, buffer = true })
-  vim.keymap.set("n", options.keymap["nav_mode"].open, open_file_line, { noremap = true, silent = true, buffer = true })
-  vim.keymap.set("n", options.keymap["nav_mode"].switch_back, M.switch_nav_md, { noremap = true, silent = true, buffer = true })
+  vim.keymap.set("n", options.keymaps["nav_mode"].next, navigate_to_next, { noremap = true, silent = true, buffer = true })
+  vim.keymap.set("n", options.keymaps["nav_mode"].prev, navigate_to_prev, { noremap = true, silent = true, buffer = true })
+  vim.keymap.set("n", options.keymaps["nav_mode"].open, open_file_line, { noremap = true, silent = true, buffer = true })
+  vim.keymap.set("n", options.keymaps["nav_mode"].switch_back, M.switch_nav_md, { noremap = true, silent = true, buffer = true })
   vim.api.nvim_set_option_value('wrap', false, { scope = 'local' })  -- Disable line wrapping in nav-mode; position calcuation in wrapping mode is not accurate
 
   if M.last_entry ~= "" then
-    onetime_keymap(options.keymap["nav_mode"]._tmp_.append_link, write_entry, update_winbar_text)
+    onetime_keymap(options.keymaps["nav_mode"].append_link, write_entry, update_winbar_text)
   end
   update_winbar_text()
 
