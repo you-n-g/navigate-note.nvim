@@ -16,8 +16,6 @@ Navigating through project files and understanding them by taking notes is a cru
 {
   "you-n-g/navigate-note.nvim",
   config=true,
-  dependencies = {
-  },
 }
 ```
 
@@ -27,13 +25,25 @@ Navigating through project files and understanding them by taking notes is a cru
 
 ### Features & Usage
 - Nav Mode
-  - `<m-cr>` to open the file under the cursor
-- Tab jumping
-  - Tab Floating Preview
-- Fast navigating
-- Peeking mode:
-  - 💡 When using `<c-a>` and `<c-x>` to change the line number in peeking mode, this feature, which might initially seem hard to find useful, can actually provide you with an amazing experience.
-- Jump mode
+  - `<m-h>`: Switch to the `nav.md` file, your main hub for notes and navigation. If you're already in `nav.md`, it takes you back to the last file you were on.
+  - `<m-p>`: Add the current file and line to `nav.md`. This is great for bookmarking important code sections.
+  - `<m-cr>`: Open the file and line under the cursor in `nav.md`.
+
+- Tab Jumping and Preview
+  - `<tab>`: Move to the next `file:line` in `nav.md`.
+  - `<s-tab>`: Move to the previous `file:line`.
+  - A floating window shows a preview of the file content when you use `<tab>`.
+
+- Fast Navigating
+  - `<numbers>`: Jump to the i-th "file:line" entry.
+
+- Peeking Mode
+  - Get a quick look at file content without fully opening it.
+  - Use `<c-a>` and `<c-x>` to change the line number in the preview.
+
+- Jump Mode
+  - Toggle between jumping to the file only or to the exact `file:line` with `<m-l>`.
+  - In file-only mode, go to the start of the file; in file:line mode, go to the specific line.
 
 ## Advanced Setup
 ```lua
@@ -41,6 +51,27 @@ Navigating through project files and understanding them by taking notes is a cru
 {
   "you-n-g/navigate-note.nvim",
   opts = {
+		filename = "nav.md", -- The filename of the markdown.
+		width = 0.6, -- The width of the popup window when jumping in the file with <tab>.
+		keymaps = {
+			nav_mode = {
+				-- Navigation & Jumping
+				next = "<tab>",
+				prev = "<s-tab>",
+				open = "<m-cr>",
+				switch_back = "<m-h>", -- Switch back to the previous file from `nav.md`.
+				-- Editing
+				append_link = "<m-p>", -- (P)aste will more align with the meaning.
+				-- Mode switching
+				jump_mode = "<m-l>", -- When we jump to a file, jump to the file only or jump to the exact file:line.
+			},
+			add = "<localleader>na",
+			open_nav = "<m-h>", -- Switch to `nav.md`.
+		},
+		context_line_count = { -- It would be a total of `2 * context_line_count - 1` lines.
+			tab = 8,
+			vline = 2,
+		},
   }
 }
 ```
@@ -54,10 +85,11 @@ You can find my latest and preferred configuration [here](https://github.com/you
   - [ ] Do not override the previous filename
   - [ ] Directly open `nav.md` will not enter nav mode
   - [x] Wrong position when displaying tab floating with peeking mode
-- UI:
+- Feature:
   - [ ] Detailed Helper
   - [x] Peeking mode
     - [x] better left sign([reference](https://github.com/ErichDonGubler/lsp_lines.nvim))
+    - [ ] dynamic adjusting context length
 
 ## Development
 Contributions to this project are welcome.
