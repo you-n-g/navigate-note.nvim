@@ -97,7 +97,7 @@ TODO                                   *navigate-note-navigate-note.nvim-todo*
 - UI:
     - ☐ Detailed Helper
     - ☒ Peeking mode
-        - ☐ better left line(reference <https://github.com/ErichDonGubler/lsp_lines.nvim>)
+        - ☒ better left sign(reference <https://github.com/ErichDonGubler/lsp_lines.nvim>)
 
 
 DEVELOPMENT                     *navigate-note-navigate-note.nvim-development*
