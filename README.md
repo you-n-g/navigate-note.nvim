@@ -33,6 +33,7 @@ Navigating through project files and understanding them by taking notes is a cru
 - Fast navigating
 - Peeking mode:
   - 💡 When using `<c-a>` and `<c-x>` to change the line number in peeking mode, this feature, which might initially seem hard to find useful, can actually provide you with an amazing experience.
+- Jump mode
 
 ## Advanced Setup
 ```lua
@@ -52,10 +53,11 @@ You can find my latest and preferred configuration [here](https://github.com/you
 - Bug:
   - [ ] Do not override the previous filename
   - [ ] Directly open `nav.md` will not enter nav mode
-  - [ ] Wrong position when displaying tab floating with peeking mode
+  - [x] Wrong position when displaying tab floating with peeking mode
 - UI:
   - [ ] Detailed Helper
   - [x] Peeking mode
+    - [ ] better left line([reference](https://github.com/ErichDonGubler/lsp_lines.nvim))
 
 ## Development
 Contributions to this project are welcome.

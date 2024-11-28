@@ -69,37 +69,33 @@ end
 
 local opened_windows = {}
 
---- 
----@param contents table list of lines to be displayed in the hover window
----@param filetype string the file type to be set for the hover window buffer
----@param duration number duration in milliseconds for which the hover window will be displayed
----@param hl_linenbr number line number to be highlighted in the hover window (1-based)
+---
+---@param contents table List of lines to be displayed in the hover window
+---@param filetype string The file type to be set for the hover window buffer
+---@param duration number Duration in milliseconds for which the hover window will be displayed
+---@param hl_linenbr number Line number to be highlighted in the hover window (1-based)
 local function create_hover_window(contents, filetype, duration, hl_linenbr)
   -- Close previously opened windows
   for _, win in ipairs(opened_windows) do
-    if vim.api.nvim_win_is_valid(win) then
-      vim.api.nvim_win_close(win, true)
+    if api.nvim_win_is_valid(win) then
+      api.nvim_win_close(win, true)
     end
   end
   opened_windows = {}
 
-  if duration == nil then
-    duration = 3000
-  end
-  -- Get the current cursor position
-  local row, _ = unpack(vim.api.nvim_win_get_cursor(0))
-  local first_line_number_visible =  vim.fn.line('w0')  -- the first line number visiable in the current window
+  duration = duration or 3000
 
-  -- Create a new buffer for the floating window
-  local buf = vim.api.nvim_create_buf(false, true)
+  local buf = api.nvim_create_buf(false, true)
   -- Set the file type of the buffer
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, contents)
-  vim.api.nvim_set_option_value('filetype', filetype, {buf=buf})
-  vim.api.nvim_set_option_value('modifiable', false, {buf=buf})
-  -- TODO: highlight the line `hl_linenbr`
-  if hl_linenbr ~= nil then
-    vim.api.nvim_buf_add_highlight(buf, -1, "Visual", hl_linenbr - 1, 0, -1)
+  api.nvim_buf_set_lines(buf, 0, -1, false, contents)
+  api.nvim_set_option_value('filetype', filetype, { buf = buf })
+  api.nvim_set_option_value('modifiable', false, { buf = buf })
+
+  -- Highlight the line `hl_linenbr` if provided
+  if hl_linenbr then
+    api.nvim_buf_add_highlight(buf, -1, "Visual", hl_linenbr - 1, 0, -1)
   end
+
   -- Calculate the width and height of the floating window
   local width
   if type(options.width) == "number" then
@@ -112,24 +108,27 @@ local function create_hover_window(contents, filetype, duration, hl_linenbr)
     width = 120
   end
   local height = math.max(#contents, 1)
-  -- Calculate the position of the floating window
+
+  -- Calculate the position of the floating window relative to the cursor
   local opts = {
-    relative = 'win',  -- Position relative to the current window
-    row = row - first_line_number_visible - (hl_linenbr ~= nil and (hl_linenbr - 1)),  -- Align the box to the current line
-    col = vim.api.nvim_win_get_width(0),  -- Align the box to the right side of the current window
+    relative = 'cursor',  -- Position relative to the cursor
+    row = 1 - hl_linenbr,  -- Align the box just below the cursor
+    col = 1000,  -- make the window aligh to the right (seems Neovim will make sure it is visible)
     width = width,
     height = height,
     style = 'minimal',
-    anchor = 'NE',  -- Align the box to the top-left corner of the calculated position
+    anchor = 'NW',  -- Align the box to the top-left corner of the calculated position
   }
+
   -- Create the floating window
-  local current_hover_win = vim.api.nvim_open_win(buf, false, opts)
-  vim.api.nvim_set_option_value('wrap', false, {win=current_hover_win})
+  local current_hover_win = api.nvim_open_win(buf, false, opts)
+  api.nvim_set_option_value('wrap', false, { win = current_hover_win })
   table.insert(opened_windows, current_hover_win)
+
   -- Set up a timer to close the window after the specified duration
   vim.defer_fn(function()
-    if vim.api.nvim_win_is_valid(current_hover_win) then
-      vim.api.nvim_win_close(current_hover_win, true)
+    if api.nvim_win_is_valid(current_hover_win) then
+      api.nvim_win_close(current_hover_win, true)
     end
   end, duration)
 end
@@ -437,7 +436,7 @@ local function update_extmark()
     first_call = false
     vim.defer_fn(function()
       update_virtual_lines(bufnr, matches)
-    end, 1000)  -- Delay by 1000 milliseconds (1 second)
+    end, 300)  -- Delay by 1000 milliseconds (1 second)
   else
     update_virtual_lines(bufnr, matches)
   end
