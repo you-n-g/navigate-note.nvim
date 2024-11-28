@@ -25,6 +25,15 @@ Navigating through project files and understanding them by taking notes is a cru
 <!-- Add demo content here -->
     A demo showcasing how to use the plugin will be available soon. If you're eager to try it out, simply press `<m-h>` (for example, `alt+h`) to launch the plugin.
 
+### Features & Usage
+- Nav Mode
+  - `<m-cr>` to open the file under the cursor
+- Tab jumping
+  - Tab Floating Preview
+- Fast navigating
+- Peeking mode:
+  - 💡 When using `<c-a>` and `<c-x>` to change the line number in peeking mode, this feature, which might initially seem hard to find useful, can actually provide you with an amazing experience.
+
 ## Advanced Setup
 ```lua
 -- Lazy.nvim
@@ -42,8 +51,11 @@ You can find my latest and preferred configuration [here](https://github.com/you
 ## TODO
 - Bug:
   - [ ] Do not override the previous filename
+  - [ ] Directly open `nav.md` will not enter nav mode
+  - [ ] Wrong position when displaying tab floating with peeking mode
 - UI:
-  - [ ] Detailed README
+  - [ ] Detailed Helper
+  - [x] Peeking mode
 
 ## Development
 Contributions to this project are welcome.

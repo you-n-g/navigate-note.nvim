@@ -134,8 +134,28 @@ local function create_hover_window(contents, filetype, duration, hl_linenbr)
   end, duration)
 end
 
+local function get_content(file, line, context_line_count)
+  -- Open the file in a new buffer
+  local file_bufnr = vim.fn.bufnr(file, true)
+  if file_bufnr == -1 then
+    file_bufnr = vim.fn.bufadd(file)
+  end
+  vim.fn.bufload(file_bufnr)
+
+  if line == "" or line == nil then
+    -- TODO: set the line to the position last time we close it
+    line = 1
+  end
+
+  -- Get the context of the file and line
+  local context_lines = vim.api.nvim_buf_get_lines(file_bufnr, math.max(0, tonumber(line) - context_line_count), tonumber(line) + context_line_count - 1, false)
+  -- NOTE: we need to delay for a while to load the buffer. otherwise, options will be missing
+  -- require"snacks".debug(file, file_bufnr, vim.bo[file_bufnr].filetype)
+  return context_lines, file_bufnr
+end
+
 local function goto_cursor(bufnr, match_item)
-  local context_line_count = 3
+  local context_line_count = options.context_line_count.tab
   local row, col = match_item[1], match_item[2]
   api.nvim_win_set_cursor(bufnr, { row, col })
 
@@ -143,22 +163,9 @@ local function goto_cursor(bufnr, match_item)
   local current_line = api.nvim_buf_get_lines(bufnr, row - 1, row, false)[1]
   local file, line = string.match(current_line, file_line_pattern)
   if file then
-    -- Open the file in a new buffer
-    local file_bufnr = vim.fn.bufnr(file, true)
-    if file_bufnr == -1 then
-      file_bufnr = vim.fn.bufadd(file)
-    end
-    vim.fn.bufload(file_bufnr)
-
-    if line == "" then
-      -- TODO: set the line to the position last time we close it
-      line = 1
-    end
-
-    -- Get the context of the file and line
-    local context_lines = vim.api.nvim_buf_get_lines(file_bufnr, math.max(0, tonumber(line) - context_line_count), tonumber(line) + context_line_count - 1, false)
     -- Create a hover window to show the context of the file and line
-    create_hover_window(context_lines, vim.bo[file_bufnr].filetype, 3000, math.max(1, #context_lines - 2))
+    local context_lines, file_bufnr = get_content(file, line, context_line_count)
+    create_hover_window(context_lines, vim.bo[file_bufnr].filetype, 3000, math.max(1, #context_lines - context_line_count + 1))
   else
     print("No valid file:line pattern found in match_item")
   end
@@ -375,8 +382,39 @@ local function open_ith_link(i)
 end
 
 local NAV_LINK_NS = vim.api.nvim_create_namespace('NavigationLink')
+local NAV_LINK_VLINES_NS = vim.api.nvim_create_namespace("NAVVirtualLines")
+
+local function update_virtual_lines(bufnr, matches)
+  vim.api.nvim_buf_clear_namespace(bufnr, NAV_LINK_VLINES_NS, 0, -1)
+  local context_line_count = options.context_line_count.vline
+
+  if context_line_count > 0 then
+    for _, match in ipairs(matches) do
+      local row, col = match[1], match[2]
+      local current_line = api.nvim_buf_get_lines(bufnr, row - 1, row, false)[1]
+      local file, line = string.match(current_line, file_line_pattern)
+      local context_lines = get_content(file, line, context_line_count)
+      -- Create a namespace for your extmarks
+
+      -- Define the virtual lines you want to add
+      local virt_lines = {}
+      for _, line_str in ipairs(context_lines) do
+        table.insert(virt_lines, {{string.rep(" ", col) .. "│" .. line_str, "Comment"}})
+      end
+
+      -- Set the extmark with virtual lines
+      vim.api.nvim_buf_set_extmark(bufnr, NAV_LINK_VLINES_NS, row, 0, {
+        virt_lines = virt_lines,
+        virt_lines_above = true,  -- Place the virtual lines above the specified line
+      })
+    end
+  end
+end
+
+local first_call = true
 
 local function update_extmark()
+  -- 1) add vritual marks/anchors for the matches
   -- Clear previous extmarks before setting the new extmarks
   local bufnr = vim.api.nvim_get_current_buf()
   vim.api.nvim_buf_clear_namespace(bufnr, NAV_LINK_NS, 0, -1)
@@ -390,6 +428,18 @@ local function update_extmark()
       virt_text = { { string.format("%s[%d]", mode_display_map[M.mode.jump], i), "Comment" } },
       virt_text_pos = "inline",
     })
+  end
+
+  -- 2) read the content in the file and show 5 lines around the link 
+  -- TODO: if it is first time call the function, wait 1 second. Otherwise, call it immediately
+
+  if first_call then
+    first_call = false
+    vim.defer_fn(function()
+      update_virtual_lines(bufnr, matches)
+    end, 1000)  -- Delay by 1000 milliseconds (1 second)
+  else
+    update_virtual_lines(bufnr, matches)
   end
 end
 
@@ -417,6 +467,7 @@ end
 
 -- Function to enter nav-mode
 local function enter_nav_mode()
+  print("Enter nav-mode start")
   vim.keymap.set("n", options.keymaps["nav_mode"].next, navigate_to_next, { noremap = true, silent = true, buffer = true })
   vim.keymap.set("n", options.keymaps["nav_mode"].prev, navigate_to_prev, { noremap = true, silent = true, buffer = true })
   vim.keymap.set("n", options.keymaps["nav_mode"].open, open_file_line, { noremap = true, silent = true, buffer = true })
@@ -448,7 +499,9 @@ end
 
 -- Autocommand to enter nav-mode when nav.md is opened
 local nav_mode_group = vim.api.nvim_create_augroup("NavMode", { clear = true })
-vim.api.nvim_create_autocmd("BufEnter", {
+-- TODO: BufEnter will not capture behavior that directly open the file like `vim nav.md`
+-- "BufReadPost", "VimEnter" does not solve the problem
+vim.api.nvim_create_autocmd({"BufEnter"}, {
   pattern = nav_md_file,
   callback = enter_nav_mode,
   group = nav_mode_group,

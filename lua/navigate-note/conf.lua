@@ -18,6 +18,10 @@ local M = {
 			add = "<localleader>na",
 			open_nav = "<m-h>",
 		},
+    context_line_count = {-- it would be total `2 * context_line_count - 1` lines
+      tab = 5,
+      vline = 2,
+    },
 	},
 }
 
