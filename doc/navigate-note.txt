@@ -3,25 +3,25 @@
 ==============================================================================
 Table of Contents                            *navigate-note-table-of-contents*
 
-1. navigate-note.nvim                       |navigate-note-navigate-note.nvim|
-  - Plugin Motivation     |navigate-note-navigate-note.nvim-plugin-motivation|
-  - Design Philosophy     |navigate-note-navigate-note.nvim-design-philosophy|
-  - Installation               |navigate-note-navigate-note.nvim-installation|
-  - Demo                               |navigate-note-navigate-note.nvim-demo|
-  - Advanced Setup           |navigate-note-navigate-note.nvim-advanced-setup|
-  - TODO                               |navigate-note-navigate-note.nvim-todo|
-  - Development                 |navigate-note-navigate-note.nvim-development|
-  - Related Projects       |navigate-note-navigate-note.nvim-related-projects|
+1. 🧭navigate-📝note.nvim       |navigate-note-🧭navigate-📝note.nvim|
+  - 🎯Plugin Motivation|navigate-note-🧭navigate-📝note.nvim-🎯plugin-motivation|
+  - 📐Design Philosophy|navigate-note-🧭navigate-📝note.nvim-📐design-philosophy|
+  - 📦Installation|navigate-note-🧭navigate-📝note.nvim-📦installation|
+  - 🎥Demo               |navigate-note-🧭navigate-📝note.nvim-🎥demo|
+  - ⚙️Advanced Setup|navigate-note-🧭navigate-📝note.nvim-⚙️advanced-setup|
+  - ☑️TODO           |navigate-note-🧭navigate-📝note.nvim-☑️todo|
+  - 🔨Development |navigate-note-🧭navigate-📝note.nvim-🔨development|
+  - 🔗Related Projects|navigate-note-🧭navigate-📝note.nvim-🔗related-projects|
 2. Links                                                 |navigate-note-links|
 
 ==============================================================================
-1. navigate-note.nvim                       *navigate-note-navigate-note.nvim*
+1. 🧭navigate-📝note.nvim       *navigate-note-🧭navigate-📝note.nvim*
 
 <https://github.com/marketplace/actions/mega-linter>
 <https://github.com/kdheepak/panvimdoc> <https://neovim.io>
 
 
-PLUGIN MOTIVATION         *navigate-note-navigate-note.nvim-plugin-motivation*
+🎯PLUGIN MOTIVATION*navigate-note-🧭navigate-📝note.nvim-🎯plugin-motivation*
 
 Navigating through project files and understanding them by taking notes is a
 crucial task for developers. While there are many tools available for
@@ -31,7 +31,7 @@ integrated note-taking capabilities aligned with navigation.
 `navigate-note.nvim` aims to bridge this gap.
 
 
-DESIGN PHILOSOPHY         *navigate-note-navigate-note.nvim-design-philosophy*
+📐DESIGN PHILOSOPHY*navigate-note-🧭navigate-📝note.nvim-📐design-philosophy*
 
 `navigate-note.nvim` creates a `nav.md` note in your project’s root
 directory. This allows you to take notes and add links to files, facilitating
@@ -39,7 +39,7 @@ navigation between them. By interleaving notes and file links, `navigate-note`
 aligns navigation with your understanding of the project.
 
 
-INSTALLATION                   *navigate-note-navigate-note.nvim-installation*
+📦INSTALLATION   *navigate-note-🧭navigate-📝note.nvim-📦installation*
 
 >lua
     -- Lazy.nvim
@@ -50,14 +50,14 @@ INSTALLATION                   *navigate-note-navigate-note.nvim-installation*
 <
 
 
-DEMO                                   *navigate-note-navigate-note.nvim-demo*
+🎥DEMO                   *navigate-note-🧭navigate-📝note.nvim-🎥demo*
 
 >
     A demo showcasing how to use the plugin will be available soon. If you're eager to try it out, simply press `<m-h>` (for example, `alt+h`) to launch the plugin.
 <
 
 
-FEATURES & USAGE ~
+📖FEATURES & USAGE ~
 
 - Nav Mode
     - `<m-h>`: Switch to the `nav.md` file, your main hub for notes and navigation. If you’re already in `nav.md`, it takes you back to the last file you were on.
@@ -77,7 +77,7 @@ FEATURES & USAGE ~
     - In file-only mode, go to the start of the file; in file:line mode, go to the specific line.
 
 
-ADVANCED SETUP               *navigate-note-navigate-note.nvim-advanced-setup*
+⚙️ADVANCED SETUP*navigate-note-🧭navigate-📝note.nvim-⚙️advanced-setup*
 
 >lua
     -- Lazy.nvim
@@ -115,7 +115,7 @@ can find my latest and preferred configuration here
 as an example.
 
 
-TODO                                   *navigate-note-navigate-note.nvim-todo*
+☑️TODO               *navigate-note-🧭navigate-📝note.nvim-☑️todo*
 
 - Bug:
     - ☐ Do not override the previous filename
@@ -128,7 +128,7 @@ TODO                                   *navigate-note-navigate-note.nvim-todo*
         - ☐ dynamic adjusting context length
 
 
-DEVELOPMENT                     *navigate-note-navigate-note.nvim-development*
+🔨DEVELOPMENT     *navigate-note-🧭navigate-📝note.nvim-🔨development*
 
 Contributions to this project are welcome.
 
@@ -140,7 +140,7 @@ If you prefer to run tests without a user interface, you can execute `make
 test` to initiate the test suite.
 
 
-RELATED PROJECTS           *navigate-note-navigate-note.nvim-related-projects*
+🔗RELATED PROJECTS*navigate-note-🧭navigate-📝note.nvim-🔗related-projects*
 
 - arrow.nvim <https://github.com/otavioschwanck/arrow.nvim>: A navigation tool for Neovim.
 - harpoon <https://github.com/ThePrimeagen/harpoon>: Another navigation tool for Neovim.
