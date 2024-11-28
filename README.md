@@ -57,7 +57,7 @@ You can find my latest and preferred configuration [here](https://github.com/you
 - UI:
   - [ ] Detailed Helper
   - [x] Peeking mode
-    - [ ] better left line([reference](https://github.com/ErichDonGubler/lsp_lines.nvim))
+    - [x] better left sign([reference](https://github.com/ErichDonGubler/lsp_lines.nvim))
 
 ## Development
 Contributions to this project are welcome.

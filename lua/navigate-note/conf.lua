@@ -19,7 +19,7 @@ local M = {
 			open_nav = "<m-h>",
 		},
     context_line_count = {-- it would be total `2 * context_line_count - 1` lines
-      tab = 5,
+      tab = 8,
       vline = 2,
     },
 	},
