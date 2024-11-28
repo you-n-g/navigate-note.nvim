@@ -1,16 +1,16 @@
-# navigate-note.nvim
+# 🧭navigate-📝note.nvim
 [![Mega-Linter](https://github.com/you-n-g/navigate-note.nvim/actions/workflows/linter.yml/badge.svg)](https://github.com/marketplace/actions/mega-linter)
 [![panvimdoc](https://github.com/you-n-g/navigate-note.nvim/actions/workflows/panvimdoc.yml/badge.svg)](https://github.com/kdheepak/panvimdoc)
 [![Neovim Version](https://img.shields.io/badge/Neovim-0.8%2B-blue.svg)](https://neovim.io)
 
-## Plugin Motivation
+## 🎯Plugin Motivation
 Navigating through project files and understanding them by taking notes is a crucial task for developers. While there are many tools available for navigation, such as [arrow.nvim](https://github.com/otavioschwanck/arrow.nvim) and [harpoon](https://github.com/ThePrimeagen/harpoon), they often lack integrated note-taking capabilities aligned with navigation.
 `navigate-note.nvim` aims to bridge this gap.
 
-## Design Philosophy
+## 📐Design Philosophy
 `navigate-note.nvim` creates a `nav.md` note in your project's root directory. This allows you to take notes and add links to files, facilitating navigation between them. By interleaving notes and file links, `navigate-note` aligns navigation with your understanding of the project.
 
-## Installation
+## 📦Installation
 ```lua
 -- Lazy.nvim
 {
@@ -19,11 +19,11 @@ Navigating through project files and understanding them by taking notes is a cru
 }
 ```
 
-## Demo
+## 🎥Demo
 <!-- Add demo content here -->
     A demo showcasing how to use the plugin will be available soon. If you're eager to try it out, simply press `<m-h>` (for example, `alt+h`) to launch the plugin.
 
-### Features & Usage
+### 📖Features & Usage
 - Nav Mode
   - `<m-h>`: Switch to the `nav.md` file, your main hub for notes and navigation. If you're already in `nav.md`, it takes you back to the last file you were on.
   - `<m-p>`: Add the current file and line to `nav.md`. This is great for bookmarking important code sections.
@@ -45,7 +45,8 @@ Navigating through project files and understanding them by taking notes is a cru
   - Toggle between jumping to the file only or to the exact `file:line` with `<m-l>`.
   - In file-only mode, go to the start of the file; in file:line mode, go to the specific line.
 
-## Advanced Setup
+
+## ⚙️Advanced Setup
 ```lua
 -- Lazy.nvim
 {
@@ -80,7 +81,7 @@ More detailed [configuration](lua/navigate-note/conf.lua) are listed here.
 You can find my latest and preferred configuration [here](https://github.com/you-n-g/deploy/blob/master/configs/lazynvim/lua/plugins/navigating.lua) as an example.
 
 
-## TODO
+## ☑️TODO
 - Bug:
   - [ ] Do not override the previous filename
   - [ ] Directly open `nav.md` will not enter nav mode
@@ -91,7 +92,7 @@ You can find my latest and preferred configuration [here](https://github.com/you
     - [x] better left sign([reference](https://github.com/ErichDonGubler/lsp_lines.nvim))
     - [ ] dynamic adjusting context length
 
-## Development
+## 🔨Development
 Contributions to this project are welcome.
 
 You can test the plugin in UI with minimal config with
@@ -99,6 +100,6 @@ You can test the plugin in UI with minimal config with
 
 If you prefer to run tests without a user interface, you can execute `make test` to initiate the test suite.
 
-## Related Projects
+## 🔗Related Projects
 - [arrow.nvim](https://github.com/otavioschwanck/arrow.nvim): A navigation tool for Neovim.
 - [harpoon](https://github.com/ThePrimeagen/harpoon): Another navigation tool for Neovim.
