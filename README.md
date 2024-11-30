@@ -24,7 +24,8 @@ Navigating through project files and understanding them by taking notes is a cru
     A demo showcasing how to use the plugin will be available soon. If you're eager to try it out, simply press `<m-h>` (for example, `alt+h`) to launch the plugin.
 
 ### 📖Features & Usage
-![image](https://github.com/user-attachments/assets/93f80604-7930-4dd5-90ce-25532dcddc38)
+![image](https://github.com/user-attachments/assets/eb939826-bc7c-4eea-b6f6-dede9a6a4ccb)
+
 
 - Nav Mode
   - `<m-h>`: Switch to the `nav.md` file, your main hub for notes and navigation. If you're already in `nav.md`, it takes you back to the last file you were on.
