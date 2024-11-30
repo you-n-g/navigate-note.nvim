@@ -511,7 +511,7 @@ local function enter_nav_mode()
 		M.switch_nav_md,
 		{ noremap = true, silent = true, buffer = true }
 	)
-	vim.api.nvim_set_option_value("wrap", false, { scope = "local" }) -- Disable line wrapping in nav-mode; position calcuation in wrapping mode is not accurate
+	-- vim.api.nvim_set_option_value("wrap", false, { scope = "local" }) -- Disable line wrapping in nav-mode; position calcuation in wrapping mode is not accurate
 
 	if M.last_entry ~= "" then
 		onetime_keymap(options.keymaps["nav_mode"].append_link, write_entry, update_winbar_text)
