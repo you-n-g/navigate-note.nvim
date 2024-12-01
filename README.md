@@ -3,6 +3,8 @@
 [![panvimdoc](https://github.com/you-n-g/navigate-note.nvim/actions/workflows/panvimdoc.yml/badge.svg)](https://github.com/kdheepak/panvimdoc)
 [![Neovim Version](https://img.shields.io/badge/Neovim-0.8%2B-blue.svg)](https://neovim.io)
 
+A Neovim plugin that merges navigation features (like those in [arrow.nvim](https://github.com/otavioschwanck/arrow.nvim) and [harpoon](https://github.com/ThePrimeagen/harpoon)) with note-taking capabilities
+
 ## 🎯Plugin Motivation
 Navigating through project files and understanding them by taking notes is a crucial task for developers. While there are many tools available for navigation, such as [arrow.nvim](https://github.com/otavioschwanck/arrow.nvim) and [harpoon](https://github.com/ThePrimeagen/harpoon), they often lack integrated note-taking capabilities aligned with navigation.
 `navigate-note.nvim` aims to bridge this gap.
