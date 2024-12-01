@@ -20,6 +20,10 @@ Table of Contents                            *navigate-note-table-of-contents*
 <https://github.com/marketplace/actions/mega-linter>
 <https://github.com/kdheepak/panvimdoc> <https://neovim.io>
 
+A Neovim plugin that merges navigation features (like those in arrow.nvim
+<https://github.com/otavioschwanck/arrow.nvim> and harpoon
+<https://github.com/ThePrimeagen/harpoon>) with note-taking capabilities
+
 
 🎯PLUGIN MOTIVATION*navigate-note-🧭navigate-📝note.nvim-🎯plugin-motivation*
 
