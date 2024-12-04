@@ -20,6 +20,7 @@ Navigating through project files and understanding them by taking notes is a cru
   config=true,
 }
 ```
+For other configurations, please refer to more [test configs](./tests/init_conf/).
 
 ## 🎥Demo
 [![navigate-note youtube video](https://img.youtube.com/vi/Sr1p_rm5b6A/0.jpg)](https://www.youtube.com/watch?v=Sr1p_rm5b6A)
@@ -101,7 +102,8 @@ You can find my latest and preferred configuration [here](https://github.com/you
 Contributions to this project are welcome.
 
 You can test the plugin in UI with minimal config with
-- `vim -u tests/init_conf/lazy.lua -U NONE -N -i NONE` for [lazy.nvim](https://github.com/folke/lazy.nvim)
+- `make test-lazy` for [lazy.nvim](https://github.com/folke/lazy.nvim)
+- `make test-pckr` for [pckr.nvim](https://github.com/lewis6991/pckr.nvim)
 
 If you prefer to run tests without a user interface, you can execute `make test` to initiate the test suite.
 
