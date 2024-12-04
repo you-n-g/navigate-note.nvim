@@ -1,4 +1,4 @@
-*navigate-note.txt*        For NVIM v0.8.0       Last change: 2024 December 01
+*navigate-note.txt*        For NVIM v0.8.0       Last change: 2024 December 04
 
 ==============================================================================
 Table of Contents                            *navigate-note-table-of-contents*
@@ -52,6 +52,9 @@ aligns navigation with your understanding of the project.
       config=true,
     }
 <
+
+For other configurations, please refer to more test configs
+<./tests/init_conf/>.
 
 
 🎥DEMO                   *navigate-note-🧭navigate-📝note.nvim-🎥demo*
@@ -134,9 +137,9 @@ as an example.
 
 Contributions to this project are welcome.
 
-You can test the plugin in UI with minimal config with - `vim -u
-tests/init_conf/lazy.lua -U NONE -N -i NONE` for lazy.nvim
-<https://github.com/folke/lazy.nvim>
+You can test the plugin in UI with minimal config with - `make test-lazy` for
+lazy.nvim <https://github.com/folke/lazy.nvim> - `make test-pckr` for pckr.nvim
+<https://github.com/lewis6991/pckr.nvim>
 
 If you prefer to run tests without a user interface, you can execute `make
 test` to initiate the test suite.
