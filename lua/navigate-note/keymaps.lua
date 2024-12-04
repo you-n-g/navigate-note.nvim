@@ -13,7 +13,8 @@ function M.setup()
   M.setup_main_keymaps()
   -- TODO: if `which-key` is installed
   local ok, which_key = pcall(require, "which-key")
-  if ok then
+  -- include `which_key.add` to handle scenarios where other plugins are also named `which-key`
+  if ok and which_key.add then
     which_key.add({
       -- { "<LocalLeader>?", group = "navigate-note" },
     })
