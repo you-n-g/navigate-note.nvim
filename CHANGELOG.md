@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/you-n-g/navigate-note.nvim/compare/v1.0.0...v1.1.0) (2024-12-04)
+
+
+### Features
+
+* add tests for pckr ([920adc3](https://github.com/you-n-g/navigate-note.nvim/commit/920adc32c4c9378cde4f7d8470b00366027473d1))
+
+
+### Bug Fixes
+
+* which-key ([f454785](https://github.com/you-n-g/navigate-note.nvim/commit/f454785e25e7872e60856cb84f0695869008e37c))
+
 ## 1.0.0 (2024-12-01)
 
 
