@@ -22,10 +22,35 @@ local M = {
 			tab = 8,
 			vline = 2,
 		},
+    link_surround = {
+      left = "[[",
+      right = "]]"
+    }
 	},
 }
 
 M.TMP_KEYMAP = { "append_link" } -- This keymap will only work once.
+
+-- the default link style is [[file:line]], all related patterns are here
+M.link_patterns = {
+  -- match_add=[=[\v\[\[[^:]+:\zs\d+\ze\]\]]=],  -- for highlight numbers
+  match_add=[=[%[%[\v[^:]+:\zs\d+\ze\m%]%]]=],  -- for highlight numbers
+  entry_format="[[%s:%d]]", --for adding entry
+  file_line_pattern="%[%[([^:%]]+):?(%d*)%]%]",  -- for extracting file and line
+}
+
+local function update_link_patterns()
+  local left = vim.pesc(M.options.link_surround.left)
+  local right = vim.pesc(M.options.link_surround.right)
+  M.link_patterns = {
+    -- Pattern for highlighting numbers in the link
+    match_add = left .. [=[\v[^:]+:\zs\d+\ze\m]=] .. right,
+    -- Format for adding an entry
+    entry_format = string.format("%s%%s:%%d%s", M.options.link_surround.left, M.options.link_surround.right),
+    -- Pattern for extracting file and line
+    file_line_pattern = left .. "([^:%]]+):?(%d*)" .. right,
+  }
+end
 
 function M.is_tmp_keymap(key)
 	for _, v in pairs(M.TMP_KEYMAP) do
@@ -39,6 +64,7 @@ end
 function M.setup(options)
 	options = options or {}
 	M.options = vim.tbl_deep_extend("force", {}, M.defaults, options)
+  update_link_patterns()
 end
 
 return M
