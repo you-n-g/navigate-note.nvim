@@ -40,7 +40,6 @@ local mode_display_map = {
 local api = vim.api
 local nav_md_file = options.filename
 
-local file_line_pattern = "%[%[([^:%]]+):?(%d*)%]%]"
 
 -- Function to return all {line_number, start_pos, end_pos} in appearing order
 local function get_all_matched(content)
@@ -55,7 +54,7 @@ local function get_all_matched(content)
 	for line in content:gmatch("([^\r\n]*)\r?\n?") do
 		local start_pos, end_pos = 0, 0
 		while true do
-			start_pos, end_pos = string.find(line, file_line_pattern, end_pos + 1)
+			start_pos, end_pos = string.find(line, conf.link_patterns.file_line_pattern, end_pos + 1)
 			if not start_pos then
 				break
 			end
@@ -165,7 +164,7 @@ local function goto_cursor(bufnr, match_item)
 
 	-- Extract the file path and line number from the match_item
 	local current_line = api.nvim_buf_get_lines(bufnr, row - 1, row, false)[1]
-	local file, line = string.match(current_line, file_line_pattern)
+	local file, line = string.match(current_line, conf.link_patterns.file_line_pattern)
 	if file then
 		-- Create a hover window to show the context of the file and line
 		local context_lines, file_bufnr = get_content(file, line, context_line_count)
@@ -230,7 +229,7 @@ end
 local function open_file_line()
 	local current_line = api.nvim_get_current_line()
 	-- match pattern like `src/utils.py:40` or `src/utils.py`
-	local file, line = string.match(current_line, file_line_pattern)
+	local file, line = string.match(current_line, conf.link_patterns.file_line_pattern)
 	if file then
 		utils.backward() --- it is the key to popup the `nav_md_file` from the jumplist
 		api.nvim_command("edit " .. file)
@@ -248,7 +247,7 @@ local function get_entry()
 	-- Force to use relative path
 	local file_path = vim.fn.expand("%")
 	local relative_path = vim.fn.fnamemodify(file_path, ":.")
-	return string.format("[[%s:%d]]", relative_path, vim.fn.line("."))
+	return string.format(conf.link_patterns.entry_format, relative_path, vim.fn.line("."))
 end
 
 local function write_entry(entry)
@@ -397,7 +396,7 @@ local function update_virtual_lines(bufnr, matches)
 		for _, match in ipairs(matches) do
 			local row, col = match[1], match[2]
 			local current_line = api.nvim_buf_get_lines(bufnr, row - 1, row, false)[1]
-			local file, line = string.match(current_line, file_line_pattern)
+			local file, line = string.match(current_line, conf.link_patterns.file_line_pattern)
 			local context_lines = get_content(file, line, context_line_count)
 			-- Create a namespace for your extmarks
 
@@ -472,7 +471,7 @@ local function jump_mode_toggle(mode)
 		-- Add `:40` in [[src/utils.py:40]] to @comment highlight group in nav_mode
 		-- Just highlight the line number, do not highlight the file path
 		-- Use zero-width assertion to make the match more exact
-		match_id = vim.fn.matchadd("Comment", [=[\v\[\[[^:]+:\zs\d+\ze\]\]]=], 100)
+		match_id = vim.fn.matchadd("Comment", conf.link_patterns.match_add, 100)
 	end
 	update_winbar_text()
 	update_extmark()
