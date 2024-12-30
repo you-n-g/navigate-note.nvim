@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.0](https://github.com/you-n-g/navigate-note.nvim/compare/v1.0.0...v1.1.0) (2024-12-30)
+
+
+### Features
+
+* add customizable link surround delimiters in configuration ([#5](https://github.com/you-n-g/navigate-note.nvim/issues/5)) ([0238b97](https://github.com/you-n-g/navigate-note.nvim/commit/0238b97c9c9fc286c882d33c2633f852f8c8e95f))
+* add tests for pckr ([920adc3](https://github.com/you-n-g/navigate-note.nvim/commit/920adc32c4c9378cde4f7d8470b00366027473d1))
+* Enhance winbar text with custom highlight groups for keymaps ([37b7fff](https://github.com/you-n-g/navigate-note.nvim/commit/37b7fff577af8c9db75eec85cbea3c74c994e12a))
+
+
+### Bug Fixes
+
+* which-key ([f454785](https://github.com/you-n-g/navigate-note.nvim/commit/f454785e25e7872e60856cb84f0695869008e37c))
+
 ## 1.0.0 (2024-12-01)
 
 
