@@ -341,10 +341,8 @@ local function onetime_keymap(key, func, callback)
 	vim.keymap.set("n", key, _func, { noremap = true, silent = true, buffer = true })
 	M.active_keymap[key] = _func
 end
-
 local function render_winbar_text()
 	local mode_text = mode_display_map[M.mode.jump]
-	-- "%#Normal#%=%#AvanteReversedTitle#%#AvanteTitle#󰭻 Avante%#AvanteReversedTitle#%#Normal#%="
 	-- render all keymap in conf.keymap.nav_mode
 	-- only include active keymap in active_keymap and persistent key map
 	local title = "🎹:"
@@ -352,7 +350,7 @@ local function render_winbar_text()
 	-- Include persistent keymaps
 	for name, key in pairs(options.keymaps["nav_mode"]) do
 		if not conf.is_tmp_keymap(name) then
-			title = title .. " " .. string.format("(%s)%s", key, name)
+			title = title .. string.format(" (%%#WinbarShortcutsKey#%s%%#WinbarShortcutsName#)%s", key, name)
 		end
 	end
 
@@ -361,7 +359,7 @@ local function render_winbar_text()
 		if conf.is_tmp_keymap(name) then
 			for a_key, _ in pairs(M.active_keymap) do
 				if a_key == key then
-					title = title .. " " .. string.format("(%s)%s", key, name)
+					title = title .. string.format(" (%%#WinbarShortcutsKey#%s%%#WinbarShortcutsName#)%s", key, name)
 				end
 			end
 		end
@@ -369,6 +367,12 @@ local function render_winbar_text()
 
 	return mode_text .. "|" .. title
 end
+
+-- Add the following highlight groups in your Neovim configuration to customize the appearance
+vim.cmd([[
+  highlight link WinbarShortcutsKey Function
+  highlight link WinbarShortcutsName Comment
+]])
 
 local update_winbar_text = function()
 	vim.api.nvim_set_option_value("winbar", render_winbar_text(), { win = vim.api.nvim_get_current_win() })
