@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/you-n-g/navigate-note.nvim/compare/v1.1.0...v1.1.1) (2025-02-25)
+
+
+### Bug Fixes
+
+* handle missing files & convert tabs to spaces for consistent indentation ([74c50a7](https://github.com/you-n-g/navigate-note.nvim/commit/74c50a74b92dffdcceafb96e811761f73c563359))
+
 ## [1.1.0](https://github.com/you-n-g/navigate-note.nvim/compare/v1.0.0...v1.1.0) (2024-12-30)
 
 
