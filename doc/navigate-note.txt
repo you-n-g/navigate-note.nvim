@@ -1,4 +1,4 @@
-*navigate-note.txt*         For NVIM v0.8.0         Last change: 2025 March 03
+*navigate-note.txt*          For NVIM v0.8.0          Last change: 2025 May 06
 
 ==============================================================================
 Table of Contents                            *navigate-note-table-of-contents*
@@ -114,6 +114,7 @@ For other configurations, please refer to more test configs
                 tab = 8,
                 vline = 2,
             },
+        enable_block = false, -- enable block navigation; block navigation indicates only the block under the cursor will display the peeking window; mark the block with --- or ***
       }
     }
 <
