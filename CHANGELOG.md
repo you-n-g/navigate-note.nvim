@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0](https://github.com/you-n-g/navigate-note.nvim/compare/v1.1.1...v1.2.0) (2025-05-06)
+
+
+### Features
+
+* add block navigation support via enable_block flag ([e94896a](https://github.com/you-n-g/navigate-note.nvim/commit/e94896a7f12799e6548295404ae3f5155a006ef1))
+* debounce extmark update on cursor movement events ([1687fc2](https://github.com/you-n-g/navigate-note.nvim/commit/1687fc2531af301e332ad0854bed0bc64aec2d72))
+
 ## [1.1.1](https://github.com/you-n-g/navigate-note.nvim/compare/v1.1.0...v1.1.1) (2025-02-25)
 
 
