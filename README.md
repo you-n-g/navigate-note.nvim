@@ -83,6 +83,7 @@ For other configurations, please refer to more [test configs](./tests/init_conf/
 			tab = 8,
 			vline = 2,
 		},
+    enable_block = false, -- enable block navigation; block navigation indicates only the block under the cursor will display the peeking window; mark the block with --- or ***
   }
 }
 ```

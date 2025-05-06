@@ -25,7 +25,8 @@ local M = {
     link_surround = {
       left = "[[",
       right = "]]"
-    }
+    },
+    enable_block = false, -- enable block navigation; block navigation indicates only the block of the cursor will display the peeking window; mark the block with --- or ***
 	},
 }
 

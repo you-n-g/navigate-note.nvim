@@ -40,26 +40,56 @@ local mode_display_map = {
 local api = vim.api
 local nav_md_file = options.filename
 
--- Function to return all {line_number, start_pos, end_pos} in appearing order
-local function get_all_matched(content)
+-- Function to return all {line_number, start_pos, end_pos}  
+-- If enable_block is true, only return matches in the block where the cursor is (block delimited by ^---$ or ^***$)
+local function get_all_matched(content, enable_block)
   if content == nil then
     content = table.concat(api.nvim_buf_get_lines(0, 0, -1, false), "\n")
   end
 
+  enable_block = enable_block or false
   local matches = {}
-  local line_number = 1
-
-  -- Iterate through each line, including blank lines
+  local lines = {}
   for line in content:gmatch("([^\r\n]*)\r?\n?") do
+    table.insert(lines, line)
+  end
+
+  local range_start, range_end = 1, #lines
+  if enable_block then
+    local cursor = vim.api.nvim_win_get_cursor(0)
+    local cursor_line = cursor[1]
+
+    -- Block delimiters: exactly '---' or '***'
+    local top_sep = 0
+    for i = cursor_line - 1, 1, -1 do
+      if lines[i]:match("^%-%-%-+$") or lines[i]:match("^%*%*%*+$") then
+        top_sep = i
+        break
+      end
+    end
+
+    local bot_sep = #lines + 1
+    for i = cursor_line + 1, #lines do
+      if lines[i]:match("^%-%-%-+$") or lines[i]:match("^%*%*%*+$") then
+        bot_sep = i
+        break
+      end
+    end
+
+    range_start = top_sep + 1
+    range_end = bot_sep - 1
+  end
+
+  for i = range_start, range_end do
+    local line = lines[i]
     local start_pos, end_pos = 0, 0
     while true do
       start_pos, end_pos = string.find(line, conf.link_patterns.file_line_pattern, end_pos + 1)
       if not start_pos then
         break
       end
-      table.insert(matches, { line_number, start_pos - 1, end_pos - 1 }) -- -1 to align with the (0, 1) based pos
+      table.insert(matches, { i, start_pos - 1, end_pos - 1 })
     end
-    line_number = line_number + 1
   end
 
   return matches
@@ -147,6 +177,9 @@ local function get_content(file, line, context_line_count)
     -- TODO: set the line to the position last time we close it
     line = 1
   end
+
+  -- Force filetype detection and trigger BufRead autocmds for proper file detection
+  vim.api.nvim_exec_autocmds('BufRead', { buffer = file_bufnr })
 
   -- Get the context of the file and line
   local context_lines = vim.api.nvim_buf_get_lines(
@@ -384,7 +417,7 @@ local update_winbar_text = function()
 end
 
 local function open_ith_link(i)
-  local matches = get_all_matched()
+  local matches = get_all_matched(nil, conf.options.enable_block)
   if #matches < i then
     print("No such link")
     return
@@ -442,7 +475,7 @@ local function update_extmark()
   local bufnr = vim.api.nvim_get_current_buf()
   vim.api.nvim_buf_clear_namespace(bufnr, NAV_LINK_NS, 0, -1)
 
-  local matches = get_all_matched()
+  local matches = get_all_matched(nil, conf.options.enable_block)
   for i, match in ipairs(matches) do
     if i > 9 then
       break
@@ -566,5 +599,13 @@ vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "TextChangedP" }, {
   callback = update_extmark,
   group = nav_mode_group,
 })
+
+if options.enable_block then
+  vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+    pattern = nav_md_file,
+    callback = update_extmark,
+    group = nav_mode_group,
+  })
+end
 
 return M
