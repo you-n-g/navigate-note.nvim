@@ -600,10 +600,30 @@ vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "TextChangedP" }, {
   group = nav_mode_group,
 })
 
+-- Only update extmarks on CursorMoved(CursorMovedI) if there's no movement for 1 second
 if options.enable_block then
+  local cursor_timer = nil
+  local function debounce_update_extmark()
+    if cursor_timer and not cursor_timer:is_closing() then
+      cursor_timer:stop()
+      cursor_timer:close()
+    end
+    cursor_timer = vim.loop.new_timer()
+    cursor_timer:start(500, 0, function()
+      vim.schedule(function()
+        update_extmark()
+        if cursor_timer and not cursor_timer:is_closing() then
+          cursor_timer:stop()
+          cursor_timer:close()
+        end
+        cursor_timer = nil
+      end)
+    end)
+  end
+
   vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
     pattern = nav_md_file,
-    callback = update_extmark,
+    callback = debounce_update_extmark,
     group = nav_mode_group,
   })
 end
