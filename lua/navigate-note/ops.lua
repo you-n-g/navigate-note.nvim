@@ -469,10 +469,16 @@ end
 
 local first_call = true
 
-local function update_extmark()
+local function update_extmark(callback_args)
   -- 1) add vritual marks/anchors for the matches
   -- Clear previous extmarks before setting the new extmarks
-  local bufnr = vim.api.nvim_get_current_buf()
+  local bufnr
+  if callback_args ~= nil then
+    bufnr = callback_args.buf
+  else
+    bufnr = vim.api.nvim_get_current_buf()
+  end
+
   vim.api.nvim_buf_clear_namespace(bufnr, NAV_LINK_NS, 0, -1)
 
   local matches = get_all_matched(nil, conf.options.enable_block)
@@ -603,7 +609,7 @@ vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "TextChangedP" }, {
 -- Only update extmarks on CursorMoved(CursorMovedI) if there's no movement for 1 second
 if options.enable_block then
   local cursor_timer = nil
-  local function debounce_update_extmark()
+  local function debounce_update_extmark(callback_args)
     if cursor_timer and not cursor_timer:is_closing() then
       cursor_timer:stop()
       cursor_timer:close()
@@ -611,7 +617,7 @@ if options.enable_block then
     cursor_timer = vim.loop.new_timer()
     cursor_timer:start(500, 0, function()
       vim.schedule(function()
-        update_extmark()
+        update_extmark(callback_args)
         if cursor_timer and not cursor_timer:is_closing() then
           cursor_timer:stop()
           cursor_timer:close()
