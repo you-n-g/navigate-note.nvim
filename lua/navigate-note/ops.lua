@@ -200,9 +200,13 @@ local function goto_cursor(bufnr, match_item)
 
   -- Extract the file path and line number from the match_item
   local current_line = api.nvim_buf_get_lines(bufnr, row - 1, row, false)[1]
-  local file, line = string.match(current_line, conf.link_patterns.file_line_pattern)
-  if file then
+  local file, line_or_tmux = string.match(current_line, conf.link_patterns.file_line_pattern)
+  if file and file ~= "T" then
     -- Create a hover window to show the context of the file and line
+    local line = line_or_tmux
+    if line and not line:match("^%d*$") then
+      line = nil
+    end
     local context_lines, file_bufnr = get_content(file, line, context_line_count)
     if context_lines ~= nil then
       create_hover_window(
@@ -212,8 +216,6 @@ local function goto_cursor(bufnr, match_item)
         math.max(1, #context_lines - context_line_count + 1)
       )
     end
-  else
-    print("No valid file:line pattern found in match_item")
   end
 end
 
@@ -266,11 +268,12 @@ end
 -- Function to open the file and line under cursor
 local function open_file_line()
   local current_line = api.nvim_get_current_line()
-  -- match pattern like `src/utils.py:40` or `src/utils.py`
-  local file, line = string.match(current_line, conf.link_patterns.file_line_pattern)
+  -- match pattern like `src/utils.py:40` or `T:session.window`
+  local file, line_or_tmux = string.match(current_line, conf.link_patterns.file_line_pattern)
   if file then
-    local tmux_session = string.match(file, "^T%:(.+)")
-    if tmux_session then
+    if file == "T" and line_or_tmux then
+      -- This is a tmux link
+      local tmux_session = line_or_tmux
       local session, window = string.match(tmux_session, "([^%.]+)%.?(.*)")
       local tmux_command
       if window and window ~= "" then
@@ -285,14 +288,16 @@ local function open_file_line()
       else
         vim.notify("Failed to switch tmux session: " .. tostring(err), vim.log.levels.ERROR)
       end
-      return
-    end
-    utils.backward() --- it is the key to popup the `nav_md_file` from the jumplist
-    api.nvim_command("edit " .. file)
-    if M.mode.jump == "line" and line and line ~= "" then
-      api.nvim_win_set_cursor(0, { tonumber(line), 0 })
     else
-      print("Opened file: " .. file .. " (no specific line number provided)")
+      -- This is a file link
+      local line = line_or_tmux
+      utils.backward() --- it is the key to popup the `nav_md_file` from the jumplist
+      api.nvim_command("edit " .. file)
+      if M.mode.jump == "line" and line and line:match("^%d+$") then
+        api.nvim_win_set_cursor(0, { tonumber(line), 0 })
+      else
+        print("Opened file: " .. file .. " (no specific line number provided)")
+      end
     end
   else
     print("No valid file:line pattern under cursor")
@@ -456,30 +461,36 @@ local function update_virtual_lines(bufnr, matches)
     for _, match in ipairs(matches) do
       local row, col = match[1], match[2]
       local current_line = api.nvim_buf_get_lines(bufnr, row - 1, row, false)[1]
-      local file, line = string.match(current_line, conf.link_patterns.file_line_pattern)
-      local context_lines = get_content(file, line, context_line_count)
-      -- Create a namespace for your extmarks
-
-      if context_lines ~= nil then
-        -- Define the virtual lines you want to add
-        local virt_lines = {}
-        local left_sign
-        for i, line_str in ipairs(context_lines) do
-          if i == #context_lines then
-            left_sign = "└"
-          elseif i == #context_lines - context_line_count + 1 then
-            left_sign = "├"
-          else
-            left_sign = "│"
-          end
-          table.insert(virt_lines, { { string.rep(" ", col) .. left_sign .. line_str, "Comment" } })
+      local file, line_or_tmux = string.match(current_line, conf.link_patterns.file_line_pattern)
+      if file and file ~= "T" then
+        local line = line_or_tmux
+        if line and not line:match("^%d*$") then
+          line = nil
         end
+        local context_lines = get_content(file, line, context_line_count)
+        -- Create a namespace for your extmarks
 
-        -- Set the extmark with virtual lines
-        vim.api.nvim_buf_set_extmark(bufnr, NAV_LINK_VLINES_NS, row, 0, {
-          virt_lines = virt_lines,
-          virt_lines_above = true, -- Place the virtual lines above the specified line
-        })
+        if context_lines ~= nil then
+          -- Define the virtual lines you want to add
+          local virt_lines = {}
+          local left_sign
+          for i, line_str in ipairs(context_lines) do
+            if i == #context_lines then
+              left_sign = "└"
+            elseif i == #context_lines - context_line_count + 1 then
+              left_sign = "├"
+            else
+              left_sign = "│"
+            end
+            table.insert(virt_lines, { { string.rep(" ", col) .. left_sign .. line_str, "Comment" } })
+          end
+
+          -- Set the extmark with virtual lines
+          vim.api.nvim_buf_set_extmark(bufnr, NAV_LINK_VLINES_NS, row, 0, {
+            virt_lines = virt_lines,
+            virt_lines_above = true, -- Place the virtual lines above the specified line
+          })
+        end
       end
     end
   end

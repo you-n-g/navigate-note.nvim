@@ -37,7 +37,7 @@ M.link_patterns = {
   -- match_add=[=[\v\[\[[^:]+:\zs\d+\ze\]\]]=],  -- for highlight numbers
   match_add=[=[%[%[\v[^:]+:\zs\d+\ze\m%]%]]=],  -- for highlight numbers
   entry_format="[[%s:%d]]", --for adding entry
-  file_line_pattern="%[%[([^:%]]+):?(%d*)%]%]",  -- for extracting file and line
+  file_line_pattern="%[%[([^:%]]+):?([^%]]*)%]%]",  -- for extracting file and line
 }
 
 local function update_link_patterns()
@@ -49,7 +49,7 @@ local function update_link_patterns()
     -- Format for adding an entry
     entry_format = string.format("%s%%s:%%d%s", M.options.link_surround.left, M.options.link_surround.right),
     -- Pattern for extracting file and line
-    file_line_pattern = left .. "([^:%]]+):?(%d*)" .. right,
+    file_line_pattern = left .. "([^:%]]+):?([^%]]*)" .. right,
   }
 end
 
