@@ -51,6 +51,12 @@ For other configurations, please refer to more [test configs](./tests/init_conf/
   - Toggle between jumping to the file only or to the exact `file:line` with `<m-l>`.
   - In file-only mode, go to the start of the file; in file:line mode, go to the specific line.
 
+- Tmux Integration
+  - Links in `nav.md` can now be used to switch to specific Tmux sessions or windows.
+  - Format: `[[T:session_name]]` to switch to a session.
+  - Format: `[[T:session_name.window_name]]` to switch to a specific window within a session.
+  - When you press `<m-cr>` on such a link, the plugin will execute the corresponding `tmux` command.
+
 
 ## ⚙️Advanced Setup
 ```lua
