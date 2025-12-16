@@ -269,6 +269,24 @@ local function open_file_line()
   -- match pattern like `src/utils.py:40` or `src/utils.py`
   local file, line = string.match(current_line, conf.link_patterns.file_line_pattern)
   if file then
+    local tmux_session = string.match(file, "^T%:(.+)")
+    if tmux_session then
+      local session, window = string.match(tmux_session, "([^%.]+)%.?(.*)")
+      local tmux_command
+      if window and window ~= "" then
+        tmux_command = "tmux select-window -t " .. session .. ":" .. window .. " && tmux switch-client -t " .. session
+      else
+        tmux_command = "tmux switch-client -t " .. session
+      end
+
+      local ok, err = pcall(vim.fn.system, tmux_command)
+      if ok then
+        print("Switched to tmux session: " .. tmux_session)
+      else
+        vim.notify("Failed to switch tmux session: " .. tostring(err), vim.log.levels.ERROR)
+      end
+      return
+    end
     utils.backward() --- it is the key to popup the `nav_md_file` from the jumplist
     api.nvim_command("edit " .. file)
     if M.mode.jump == "line" and line and line ~= "" then
