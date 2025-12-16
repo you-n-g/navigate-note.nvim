@@ -59,5 +59,23 @@ function M.backward()
   end
 end
 
+local conf
+
+local function get_conf()
+  if not conf then
+    conf = require("navigate-note.conf")
+  end
+  return conf
+end
+
+function M.is_tmux(link_string)
+  if not link_string then
+    return false
+  end
+  local conf = get_conf()
+  local file, _ = string.match(link_string, conf.link_patterns.file_line_pattern)
+  return file == "T"
+end
+
 
 return M

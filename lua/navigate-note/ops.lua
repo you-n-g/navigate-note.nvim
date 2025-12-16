@@ -200,8 +200,8 @@ local function goto_cursor(bufnr, match_item)
 
   -- Extract the file path and line number from the match_item
   local current_line = api.nvim_buf_get_lines(bufnr, row - 1, row, false)[1]
-  local file, line_or_tmux = string.match(current_line, conf.link_patterns.file_line_pattern)
-  if file and file ~= "T" then
+  if not utils.is_tmux(current_line) then -- Use the new is_tmux function
+    local file, line_or_tmux = string.match(current_line, conf.link_patterns.file_line_pattern)
     -- Create a hover window to show the context of the file and line
     local line = line_or_tmux
     if line and not line:match("^%d*$") then
@@ -268,10 +268,9 @@ end
 -- Function to open the file and line under cursor
 local function open_file_line()
   local current_line = api.nvim_get_current_line()
-  -- match pattern like `src/utils.py:40` or `T:session.window`
   local file, line_or_tmux = string.match(current_line, conf.link_patterns.file_line_pattern)
   if file then
-    if file == "T" and line_or_tmux then
+    if utils.is_tmux(current_line) then -- Use the new is_tmux function
       -- This is a tmux link
       local tmux_session = line_or_tmux
       local session, window = string.match(tmux_session, "([^%.]+)%.?(.*)")
@@ -281,7 +280,7 @@ local function open_file_line()
       else
         tmux_command = "tmux switch-client -t " .. session
       end
-
+      
       local ok, err = pcall(vim.fn.system, tmux_command)
       if ok then
         print("Switched to tmux session: " .. tmux_session)
@@ -303,7 +302,6 @@ local function open_file_line()
     print("No valid file:line pattern under cursor")
   end
 end
-
 local function get_entry()
   -- Force to use relative path
   local file_path = vim.fn.expand("%")
@@ -461,8 +459,8 @@ local function update_virtual_lines(bufnr, matches)
     for _, match in ipairs(matches) do
       local row, col = match[1], match[2]
       local current_line = api.nvim_buf_get_lines(bufnr, row - 1, row, false)[1]
-      local file, line_or_tmux = string.match(current_line, conf.link_patterns.file_line_pattern)
-      if file and file ~= "T" then
+      if not utils.is_tmux(current_line) then -- Use the new is_tmux function
+        local file, line_or_tmux = string.match(current_line, conf.link_patterns.file_line_pattern)
         local line = line_or_tmux
         if line and not line:match("^%d*$") then
           line = nil
