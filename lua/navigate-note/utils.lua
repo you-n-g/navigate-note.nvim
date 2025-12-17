@@ -77,5 +77,63 @@ function M.is_tmux(link_string)
   return file == "T"
 end
 
+function M.get_visual_selection_pos()
+  local pos = vim.fn.getpos("v")
+  local begin_pos = { row = pos[2], col = pos[3] }
+  pos = vim.fn.getpos(".")
+  local end_pos = { row = pos[2], col = pos[3] }
+  if (begin_pos.row < end_pos.row) or ((begin_pos.row == end_pos.row) and (begin_pos.col <= end_pos.col)) then
+    return { start = begin_pos, ["end"] = end_pos }
+  else
+    return { start = end_pos, ["end"] = begin_pos }
+  end
+end
+
+function M.get_visual_selection()
+  local mode = vim.api.nvim_get_mode().mode
+  local range_pos = M.get_visual_selection_pos()
+  local lines = vim.api.nvim_buf_get_lines(0, range_pos["start"]["row"] - 1, range_pos["end"]["row"], false)
+  if #lines > 0 and mode == "v" then
+    lines[1] = string.sub(lines[1], range_pos["start"]["col"])
+    if #lines > 1 then
+      lines[#lines] = string.sub(lines[#lines], 1, range_pos["end"]["col"])
+    else
+      lines[1] = string.sub(lines[1], 1, range_pos["end"]["col"] + 1 - range_pos["start"]["col"])
+    end
+  end
+  -- lines[#lines] = "return " .. lines[#lines]
+  return table.concat(lines, "\n")
+end
+
+
+function M.is_in_block()
+  local cursor_pos = vim.api.nvim_win_get_cursor(0)
+  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+  local block_start, block_end = nil, nil
+
+  -- Find the start of the block
+  for i = cursor_pos[1], 1, -1 do
+    if string.match(lines[i], "^```") then
+      block_start = i
+      break
+    end
+  end
+
+  if block_start then
+    -- Find the end of the block
+    for i = cursor_pos[1] + 1, #lines do
+      if string.match(lines[i], "^```") then
+        block_end = i
+        break
+      end
+    end
+  end
+
+  if block_start and block_end then
+    return block_start, block_end
+  end
+
+  return nil
+end
 
 return M

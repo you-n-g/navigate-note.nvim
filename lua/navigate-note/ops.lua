@@ -24,6 +24,7 @@ TODOs:
 local conf = require("navigate-note.conf")
 local options = conf.options
 local utils = require("navigate-note.utils")
+local tmux = require("navigate-note.tmux")
 
 local M = {
   last_entry = "",
@@ -268,28 +269,11 @@ end
 -- Function to open the file and line under cursor
 local function open_file_line()
   local current_line = api.nvim_get_current_line()
-  local file, line_or_tmux = string.match(current_line, conf.link_patterns.file_line_pattern)
-  if file then
-    if utils.is_tmux(current_line) then -- Use the new is_tmux function
-      -- This is a tmux link
-      local tmux_session = line_or_tmux
-      local session, window = string.match(tmux_session, "([^%.]+)%.?(.*)")
-      local tmux_command
-      if window and window ~= "" then
-        tmux_command = "tmux select-window -t " .. session .. ":" .. window .. " && tmux switch-client -t " .. session
-      else
-        tmux_command = "tmux switch-client -t " .. session
-      end
-      
-      local ok, err = pcall(vim.fn.system, tmux_command)
-      if ok then
-        print("Switched to tmux session: " .. tmux_session)
-      else
-        vim.notify("Failed to switch tmux session: " .. tostring(err), vim.log.levels.ERROR)
-      end
-    else
-      -- This is a file link
-      local line = line_or_tmux
+  if utils.is_tmux(current_line) then -- Use the new is_tmux function
+    tmux.switch_to_tmux()
+  else
+    local file, line = string.match(current_line, conf.link_patterns.file_line_pattern)
+    if file then
       utils.backward() --- it is the key to popup the `nav_md_file` from the jumplist
       api.nvim_command("edit " .. file)
       if M.mode.jump == "line" and line and line:match("^%d+$") then
@@ -297,9 +281,9 @@ local function open_file_line()
       else
         print("Opened file: " .. file .. " (no specific line number provided)")
       end
+    else
+      print("No valid file:line pattern under cursor")
     end
-  else
-    print("No valid file:line pattern under cursor")
   end
 end
 local function get_entry()
@@ -554,6 +538,25 @@ local function jump_mode_toggle(mode)
   update_extmark()
 end
 
+local function handle_m_cr()
+  local current_line = api.nvim_get_current_line()
+  local file, _ = string.match(current_line, conf.link_patterns.file_line_pattern)
+
+  if file then
+    open_file_line()
+  else
+    if utils.is_in_block() then
+      tmux.send_current_line_to_tmux()
+    else
+      vim.api.nvim_feedkeys(
+        vim.api.nvim_replace_termcodes(options.keymaps["nav_mode"].open, true, false, true),
+        "n",
+        true
+      )
+    end
+  end
+end
+
 -- Function to enter nav-mode
 local function enter_nav_mode()
   print("Enter nav-mode start")
@@ -572,7 +575,24 @@ local function enter_nav_mode()
   vim.keymap.set(
     "n",
     options.keymaps["nav_mode"].open,
-    open_file_line,
+    handle_m_cr,
+    { noremap = true, silent = true, buffer = true }
+  )
+  vim.keymap.set(
+    "v",
+    options.keymaps["nav_mode"].open,
+    function()
+      if utils.is_in_block() then
+        tmux.send_visual_selection_to_tmux()
+      else
+        -- fallback to trigger the normal mode .open key press
+        vim.api.nvim_feedkeys(
+          vim.api.nvim_replace_termcodes(options.keymaps["nav_mode"].open, true, false, true),
+          "n",
+          true
+        )
+      end
+    end,
     { noremap = true, silent = true, buffer = true }
   )
   vim.keymap.set(
