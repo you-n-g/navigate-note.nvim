@@ -613,9 +613,7 @@ end
 
 -- Autocommand to enter nav-mode when nav.md is opened
 local nav_mode_group = vim.api.nvim_create_augroup("NavMode", { clear = true })
--- TODO: BufEnter will not capture behavior that directly open the file like `vim nav.md`
--- "BufReadPost", "VimEnter" does not solve the problem
-vim.api.nvim_create_autocmd({ "BufEnter" }, {
+vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
   pattern = nav_md_file,
   callback = enter_nav_mode,
   group = nav_mode_group,
@@ -659,6 +657,18 @@ if options.enable_block then
     callback = debounce_update_extmark,
     group = nav_mode_group,
   })
+end
+
+-- When Neovim is launched with the nav.md file directly (e.g., `nvim nav.md`),
+-- the plugin's setup code runs *after* initial buffer events like `BufEnter` or
+-- `BufWinEnter` have already fired. This means an autocommand listening for
+-- those events won't be triggered for the initial file, creating a race condition.
+-- Events like `VimEnter` are also not a reliable solution.
+-- To reliably handle this startup case, we must manually check if the current
+-- buffer is the nav.md file at the time the plugin loads. If it is, we
+-- immediately call enter_nav_mode() to ensure the plugin is activated correctly.
+if vim.fn.expand("%:t") == nav_md_file then
+  enter_nav_mode()
 end
 
 return M
