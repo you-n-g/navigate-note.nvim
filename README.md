@@ -56,6 +56,11 @@ For other configurations, please refer to more [test configs](./tests/init_conf/
   - Format: `[[T:session_name]]` to switch to a session.
   - Format: `[[T:session_name.window_name]]` to switch to a specific window within a session.
   - When you press `<m-cr>` on such a link, the plugin will execute the corresponding `tmux` command.
+  - **Sending Content to Tmux**
+    - In normal mode, if `<m-cr>` is pressed on a line containing a `file:line` or `T:session.window` link, it will perform the existing jump or switch action.
+    - If no link is found on the current line, the plugin will check if the cursor is within a code block (` ``` `). If it is
+      - the content of the *current line* will be sent to the nearest tmux target defined above it, and the plugin will switch to that tmux session/window.
+      - In visual mode, pressing `<m-cr>` will send the visually selected content to the nearest tmux target defined above the selection, and then switch to that tmux session/window.
 
 
 ## ⚙️Advanced Setup
