@@ -96,4 +96,6 @@ function M.send_current_line_to_tmux()
   send_to_tmux(current_line, session, window)
 end
 
+M.send_to_tmux = send_to_tmux
+
 return M
