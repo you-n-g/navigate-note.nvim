@@ -64,6 +64,8 @@ function M.send_visual_selection_to_tmux()
   local start_line = start_pos.row
   local session, window = get_tmux_target(start_line)
   send_to_tmux(selection, session, window)
+  -- Exit visual mode
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
 end
 
 function M.switch_to_tmux()
