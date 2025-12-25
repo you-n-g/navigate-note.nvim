@@ -1,4 +1,4 @@
-*navigate-note.txt*        For NVIM v0.8.0       Last change: 2025 December 20
+*navigate-note.txt*        For NVIM v0.8.0       Last change: 2025 December 25
 
 ==============================================================================
 Table of Contents                            *navigate-note-table-of-contents*
