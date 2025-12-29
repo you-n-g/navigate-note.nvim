@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.2.0](https://github.com/you-n-g/navigate-note.nvim/compare/v1.1.1...v1.2.0) (2025-12-29)
+
+
+### Features
+
+* add block navigation support via enable_block flag ([e94896a](https://github.com/you-n-g/navigate-note.nvim/commit/e94896a7f12799e6548295404ae3f5155a006ef1))
+* Add is_tmux utility function and refactor ops.lua to use it ([9d8c284](https://github.com/you-n-g/navigate-note.nvim/commit/9d8c284453a2d42f9f185b7b15bb55b87d601d3c))
+* Add tmux session switching for T:session.window links ([6ec1fba](https://github.com/you-n-g/navigate-note.nvim/commit/6ec1fba922780ff0574e2e837eed3c72cf9938db))
+* debounce extmark update on cursor movement events ([1687fc2](https://github.com/you-n-g/navigate-note.nvim/commit/1687fc2531af301e332ad0854bed0bc64aec2d72))
+* export send_to_tmux function for external use ([add1b70](https://github.com/you-n-g/navigate-note.nvim/commit/add1b70bcde53c68081a017ed9062c7211108ee9))
+* Generalize link pattern to support tmux links ([c049d8e](https://github.com/you-n-g/navigate-note.nvim/commit/c049d8eeff8e933cf92c5f5999662aedaa3e1c65))
+* Implement &lt;m-cr&gt; behavior for sending content to tmux and update tmux integration ([7acfe31](https://github.com/you-n-g/navigate-note.nvim/commit/7acfe31ddbfc6f09b77efd4144b0ef0715a94404))
+
+
+### Bug Fixes
+
+* ensure nav-mode activates when opening nav.md directly on startup ([672b319](https://github.com/you-n-g/navigate-note.nvim/commit/672b319a88061fe27a236033d398f7994992b974))
+* exit visual mode after sending selection to tmux ([597aa16](https://github.com/you-n-g/navigate-note.nvim/commit/597aa1693d7b8b081d67ec398945c8098b2dcd77))
+* pass callback_args to update_extmark for correct buffer handling ([a1439d4](https://github.com/you-n-g/navigate-note.nvim/commit/a1439d4d727355f94d41801e59e7c3743155e903))
+
 ## [1.1.1](https://github.com/you-n-g/navigate-note.nvim/compare/v1.1.0...v1.1.1) (2025-02-25)
 
 
