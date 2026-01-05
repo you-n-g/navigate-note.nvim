@@ -92,16 +92,27 @@ end
 function M.get_visual_selection()
   local mode = vim.api.nvim_get_mode().mode
   local range_pos = M.get_visual_selection_pos()
-  local lines = vim.api.nvim_buf_get_lines(0, range_pos["start"]["row"] - 1, range_pos["end"]["row"], false)
-  if #lines > 0 and mode == "v" then
-    lines[1] = string.sub(lines[1], range_pos["start"]["col"])
-    if #lines > 1 then
-      lines[#lines] = string.sub(lines[#lines], 1, range_pos["end"]["col"])
+  local start_row, start_col = range_pos.start.row, range_pos.start.col
+  local end_row, end_col = range_pos["end"].row, range_pos["end"].col
+
+  local lines = vim.api.nvim_buf_get_lines(0, start_row - 1, end_row, false)
+  if #lines == 0 then
+    return ""
+  end
+
+  if mode == "v" then
+    local last_line = lines[#lines]
+    local char_len = vim.fn.strlen(vim.fn.strcharpart(string.sub(last_line, end_col), 0, 1))
+    local end_col_inclusive = end_col + char_len - 1
+
+    if #lines == 1 then
+      lines[1] = string.sub(lines[1], start_col, end_col_inclusive)
     else
-      lines[1] = string.sub(lines[1], 1, range_pos["end"]["col"] + 1 - range_pos["start"]["col"])
+      lines[1] = string.sub(lines[1], start_col)
+      lines[#lines] = string.sub(lines[#lines], 1, end_col_inclusive)
     end
   end
-  -- lines[#lines] = "return " .. lines[#lines]
+
   return table.concat(lines, "\n")
 end
 

@@ -26,27 +26,26 @@ local function get_tmux_target(start_line)
 end
 
 local function switch_tmux(session, window)
-  local tmux_command
   if window and window ~= "" then
-    tmux_command = "tmux select-window -t " .. session .. ":" .. window .. " && tmux switch-client -t " .. session
-  else
-    tmux_command = "tmux switch-client -t " .. session
+    pcall(vim.fn.system, { "tmux", "select-window", "-t", session .. ":" .. window })
   end
 
-  local ok, err = pcall(vim.fn.system, tmux_command)
+  local ok, err = pcall(vim.fn.system, { "tmux", "switch-client", "-t", session })
   if not ok then
     vim.notify("Failed to switch tmux session: " .. tostring(err), vim.log.levels.ERROR)
   end
+  return ok
 end
 
---- Send content to a tmux session and perform a post action.
---- @param content string The text content to send.
---- @param session string The tmux session name.
---- @param window string|nil The tmux window name (optional).
---- @param post_action string|nil The action to perform after sending content.
----   Supported values:
----   - "switch" (default): Switch to the tmux session and window.
----   - "enter": Send an Enter key after the content without switching.
+---
+-- Send content to a tmux session and perform a post action.
+-- @param content string The text content to send.
+-- @param session string The tmux session name.
+-- @param window string|nil The tmux window name (optional).
+-- @param post_action string|nil The action to perform after sending content.
+--   Supported values:
+--   - "switch" (default): Switch to the tmux session and window.
+--   - "enter": Send an Enter key after the content without switching.
 local function send_to_tmux(content, session, window, post_action)
   if content == nil or content == "" then
     return
@@ -59,20 +58,19 @@ local function send_to_tmux(content, session, window, post_action)
     -- content = content .. "\n"  -- Because we have directly switched to the pane, press `Enter` to execute the is a low effort action.
     local target = session
     if window and window ~= "" then
-      target = target .. ":" .. window
+      target = session .. ":" .. window
     end
 
-    local tmux_command = "tmux send-keys -t " .. target .. " " .. vim.fn.shellescape(content)
-
-    local ok, err = pcall(vim.fn.system, tmux_command)
+    -- Use a list for system() to avoid shell escaping issues and handle multibyte characters better.
+    -- Use -- to ensure content starting with - is not interpreted as an option.
+    local ok, err = pcall(vim.fn.system, { "tmux", "send-keys", "-t", target, "--", content })
     if ok then
       print("Sent content to tmux session: " .. session)
 
       if post_action == "switch" then
         switch_tmux(session, window)
       elseif post_action == "enter" then
-        local enter_command = "tmux send-keys -t " .. target .. " Enter"
-        pcall(vim.fn.system, enter_command)
+        pcall(vim.fn.system, { "tmux", "send-keys", "-t", target, "Enter" })
       end
     else
       vim.notify("Failed to send content to tmux session: " .. tostring(err), vim.log.levels.ERROR)
@@ -98,7 +96,9 @@ function M.switch_to_tmux()
   if file and utils.is_tmux(current_line) then
     local tmux_session = line_or_tmux
     local session, window = string.match(tmux_session, "([^%.]+)%.?(.*)")
-    switch_tmux(session, window)
+    if switch_tmux(session, window) then
+      print("Switched to tmux session: " .. tmux_session)
+    end
   end
 end
 
