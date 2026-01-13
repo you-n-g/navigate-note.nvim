@@ -14,20 +14,35 @@ local function get_recent_tmux_line(start_line)
   return nil
 end
 
+local function parse_tmux_target_string(target_str)
+  local session, remainder = string.match(target_str, "([^%.]+)%.?(.*)")
+  local window = remainder
+  local pane = nil
+  if remainder and remainder:match("%.%d+$") then
+    window, pane = remainder:match("^(.*)%.(%d+)$")
+  end
+  return session, window, pane
+end
+
 local function get_tmux_target(start_line)
   local tmux_line = get_recent_tmux_line(start_line)
   if tmux_line then
     local _, line_or_tmux = string.match(tmux_line, conf.link_patterns.file_line_pattern)
-    local tmux_session = line_or_tmux
-    local session, window = string.match(tmux_session, "([^%.]+)%.?(.*)")
-    return session, window
+    return parse_tmux_target_string(line_or_tmux)
   end
-  return nil, nil
+  return nil, nil, nil
 end
 
-local function switch_tmux(session, window)
+local function switch_tmux(session, window, pane)
+  local target_base = session
   if window and window ~= "" then
-    pcall(vim.fn.system, { "tmux", "select-window", "-t", session .. ":" .. window })
+    target_base = session .. ":" .. window
+    pcall(vim.fn.system, { "tmux", "select-window", "-t", target_base })
+  end
+
+  if pane and pane ~= "" then
+    local pane_target = target_base .. "." .. pane
+    pcall(vim.fn.system, { "tmux", "select-pane", "-t", pane_target })
   end
 
   local ok, err = pcall(vim.fn.system, { "tmux", "switch-client", "-t", session })
@@ -42,11 +57,12 @@ end
 -- @param content string The text content to send.
 -- @param session string The tmux session name.
 -- @param window string|nil The tmux window name (optional).
+-- @param pane string|nil The tmux pane index (optional).
 -- @param post_action string|nil The action to perform after sending content.
 --   Supported values:
 --   - "switch" (default): Switch to the tmux session and window.
 --   - "enter": Send an Enter key after the content without switching.
-local function send_to_tmux(content, session, window, post_action)
+local function send_to_tmux(content, session, window, pane, post_action)
   if content == nil or content == "" then
     return
   end
@@ -54,12 +70,16 @@ local function send_to_tmux(content, session, window, post_action)
   post_action = post_action or "switch"
 
   if session then
-    -- In tmux, `send-keys` will send the text to the pane. The trailing `Enter` is to execute the command.
-    -- content = content .. "\n"  -- Because we have directly switched to the pane, press `Enter` to execute the is a low effort action.
+    local target_pane = pane
+    if not target_pane or target_pane == "" then
+      target_pane = "{last}"
+    end
+
     local target = session
     if window and window ~= "" then
       target = session .. ":" .. window
     end
+    target = target .. "." .. target_pane
 
     -- Use a list for system() to avoid shell escaping issues and handle multibyte characters better.
     -- Use -- to ensure content starting with - is not interpreted as an option.
@@ -68,7 +88,7 @@ local function send_to_tmux(content, session, window, post_action)
       print("Sent content to tmux session: " .. session)
 
       if post_action == "switch" then
-        switch_tmux(session, window)
+        switch_tmux(session, window, target_pane)
       elseif post_action == "enter" then
         pcall(vim.fn.system, { "tmux", "send-keys", "-t", target, "Enter" })
       end
@@ -84,8 +104,8 @@ function M.send_visual_selection_to_tmux()
   local selection = utils.get_visual_selection()
   local start_pos = utils.get_visual_selection_pos().start
   local start_line = start_pos.row
-  local session, window = get_tmux_target(start_line)
-  send_to_tmux(selection, session, window)
+  local session, window, pane = get_tmux_target(start_line)
+  send_to_tmux(selection, session, window, pane)
   -- Exit visual mode
   vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
 end
@@ -94,10 +114,9 @@ function M.switch_to_tmux()
   local current_line = api.nvim_get_current_line()
   local file, line_or_tmux = string.match(current_line, conf.link_patterns.file_line_pattern)
   if file and utils.is_tmux(current_line) then
-    local tmux_session = line_or_tmux
-    local session, window = string.match(tmux_session, "([^%.]+)%.?(.*)")
-    if switch_tmux(session, window) then
-      print("Switched to tmux session: " .. tmux_session)
+    local session, window, pane = parse_tmux_target_string(line_or_tmux)
+    if switch_tmux(session, window, pane) then
+      print("Switched to tmux session: " .. line_or_tmux)
     end
   end
 end
@@ -106,8 +125,8 @@ function M.send_current_line_to_tmux()
   local current_line = api.nvim_get_current_line()
   local cursor_pos = api.nvim_win_get_cursor(0)
   local start_line = cursor_pos[1]
-  local session, window = get_tmux_target(start_line)
-  send_to_tmux(current_line, session, window)
+  local session, window, pane = get_tmux_target(start_line)
+  send_to_tmux(current_line, session, window, pane)
 end
 
 M.send_to_tmux = send_to_tmux

@@ -55,6 +55,7 @@ For other configurations, please refer to more [test configs](./tests/init_conf/
   - Links in `nav.md` can now be used to switch to specific Tmux sessions or windows.
   - Format: `[[T:session_name]]` to switch to a session.
   - Format: `[[T:session_name.window_name]]` to switch to a specific window within a session.
+  - Format: `[[T:session_name.window_name.pane_index]]` to switch to a specific pane within a window.
   - When you press `<m-cr>` on such a link, the plugin will execute the corresponding `tmux` command.
   - **Sending Content to Tmux**
     - In normal mode, if `<m-cr>` is pressed on a line containing a `file:line` or `T:session.window` link, it will perform the existing jump or switch action.
