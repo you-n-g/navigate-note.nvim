@@ -52,6 +52,26 @@ local function switch_tmux(session, window, pane)
   return ok
 end
 
+local function get_max_pane_index(target)
+  local ok, output = pcall(vim.fn.system, { "tmux", "list-panes", "-t", target, "-F", "#{pane_index}" })
+  if not ok or not output then
+    return nil
+  end
+
+  local max_index = -1
+  for index in string.gmatch(output, "%d+") do
+    local i = tonumber(index)
+    if i > max_index then
+      max_index = i
+    end
+  end
+
+  if max_index == -1 then
+    return nil
+  end
+  return tostring(max_index)
+end
+
 ---
 -- Send content to a tmux session and perform a post action.
 -- @param content string The text content to send.
@@ -70,16 +90,20 @@ local function send_to_tmux(content, session, window, pane, post_action)
   post_action = post_action or "switch"
 
   if session then
-    local target_pane = pane
-    if not target_pane or target_pane == "" then
-      target_pane = "{last}"
+    local target_base = session
+    if window and window ~= "" then
+      target_base = session .. ":" .. window
     end
 
-    local target = session
-    if window and window ~= "" then
-      target = session .. ":" .. window
+    local target_pane = pane
+    if not target_pane or target_pane == "" then
+      target_pane = get_max_pane_index(target_base)
     end
-    target = target .. "." .. target_pane
+
+    local target = target_base
+    if target_pane and target_pane ~= "" then
+      target = target .. "." .. target_pane
+    end
 
     -- Use a list for system() to avoid shell escaping issues and handle multibyte characters better.
     -- Use -- to ensure content starting with - is not interpreted as an option.
