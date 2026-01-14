@@ -14,14 +14,40 @@ local function get_recent_tmux_line(start_line)
   return nil
 end
 
+local function resolve_target(session, window, pane)
+  local function get_tmux_val(fmt)
+    local ok, val = pcall(vim.fn.system, { "tmux", "display-message", "-p", fmt })
+    if ok then
+      return string.gsub(val, "%s+$", "")
+    end
+    return nil
+  end
+
+  if session == "{current}" then
+    session = get_tmux_val("#S") or session
+  end
+  if window == "{current}" then
+    window = get_tmux_val("#W") or window
+  end
+  if pane == "{current}" then
+    pane = get_tmux_val("#{pane_index}") or pane
+  end
+  return session, window, pane
+end
+
 local function parse_tmux_target_string(target_str)
   local session, remainder = string.match(target_str, "([^%.]+)%.?(.*)")
   local window = remainder
   local pane = nil
-  if remainder and remainder:match("%.%d+$") then
-    window, pane = remainder:match("^(.*)%.(%d+)$")
+
+  if remainder and remainder ~= "" then
+    local w, p = remainder:match("^(.*)%.([^%.]+)$")
+    if w and (p:match("^%d+$") or p == "{current}") then
+      window = w
+      pane = p
+    end
   end
-  return session, window, pane
+  return resolve_target(session, window, pane)
 end
 
 local function get_tmux_target(start_line)
