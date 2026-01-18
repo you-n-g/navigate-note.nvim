@@ -167,31 +167,27 @@ local function get_content(file, line, context_line_count)
     return nil -- Return nil if the file does not exist
   end
 
-  -- Open the file in a new buffer
-  local file_bufnr = vim.fn.bufnr(file, true)
-  if file_bufnr == -1 then
-    file_bufnr = vim.fn.bufadd(file)
-  end
-  vim.fn.bufload(file_bufnr)
-
   if line == "" or line == nil then
     -- TODO: set the line to the position last time we close it
     line = 1
   end
+  line = tonumber(line)
 
-  -- Force filetype detection and trigger BufRead autocmds for proper file detection
-  vim.api.nvim_exec_autocmds('BufRead', { buffer = file_bufnr })
+  -- Use readfile instead of loading buffer to avoid swapfile issues (E325)
+  local lines = vim.fn.readfile(file)
+  local filetype = vim.filetype.match({ filename = file, contents = lines }) or ""
 
-  -- Get the context of the file and line
-  local context_lines = vim.api.nvim_buf_get_lines(
-    file_bufnr,
-    math.max(0, tonumber(line) - context_line_count),
-    tonumber(line) + context_line_count - 1,
-    false
-  )
-  -- NOTE: we need to delay for a while to load the buffer. otherwise, options will be missing
-  -- require"snacks".debug(file, file_bufnr, vim.bo[file_bufnr].filetype)
-  return context_lines, file_bufnr
+  local start_idx = math.max(1, line - context_line_count + 1)
+  local end_idx = math.min(#lines, line + context_line_count - 1)
+
+  local context_lines = {}
+  if start_idx <= end_idx then
+    for i = start_idx, end_idx do
+      table.insert(context_lines, lines[i])
+    end
+  end
+
+  return context_lines, filetype
 end
 
 local function goto_cursor(bufnr, match_item)
@@ -208,11 +204,11 @@ local function goto_cursor(bufnr, match_item)
     if line and not line:match("^%d*$") then
       line = nil
     end
-    local context_lines, file_bufnr = get_content(file, line, context_line_count)
+    local context_lines, filetype = get_content(file, line, context_line_count)
     if context_lines ~= nil then
       create_hover_window(
         context_lines,
-        vim.bo[file_bufnr].filetype,
+        filetype,
         3000,
         math.max(1, #context_lines - context_line_count + 1)
       )
