@@ -66,6 +66,9 @@ For other configurations, please refer to more [test configs](./tests/init_conf/
       - the content of the *current line* will be sent to the nearest tmux target defined above it, and the plugin will switch to that tmux session/window.
       - **Note:** If the target link does not specify a pane (e.g., `[[T:session.window]]`), content will be sent to the pane with the **highest index** (usually the last created or "other" pane).
       - In visual mode, pressing `<m-cr>` will send the visually selected content to the nearest tmux target defined above the selection, and then switch to that tmux session/window.
+    - **Default Tmux Target**
+      - You can set a `default_tmux_target` in your configuration. If no `[[T:...]]` link is found above the cursor, the plugin will use this default target.
+      - Example: `default_tmux_target = "T:{current}.gemini"`
 
 
 ## ⚙️Advanced Setup
@@ -76,6 +79,7 @@ For other configurations, please refer to more [test configs](./tests/init_conf/
   opts = {
 		filename = "nav.md", -- The filename of the markdown.
 		width = 0.6, -- The width of the popup window when jumping in the file with <tab>.
+    default_tmux_target = nil, -- The default tmux target (e.g., "T:session.window.pane") when no target is found in the file.
 		keymaps = {
 			nav_mode = {
 				-- Navigation & Jumping

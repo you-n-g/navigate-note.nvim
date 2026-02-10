@@ -27,6 +27,7 @@ local M = {
       right = "]]"
     },
     enable_block = false, -- enable block navigation; block navigation indicates only the block of the cursor will display the peeking window; mark the block with --- or ***
+    default_tmux_target = nil, -- The default tmux target (e.g., "session.window.pane") when no target is found in the file.
 	},
 }
 

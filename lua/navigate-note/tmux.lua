@@ -36,6 +36,15 @@ local function resolve_target(session, window, pane)
 end
 
 local function parse_tmux_target_string(target_str)
+  if not target_str then
+    return nil, nil, nil
+  end
+
+  -- Strip T: prefix if present (e.g. from default_tmux_target = "T:session.window")
+  if string.match(target_str, "^T:") then
+    target_str = string.sub(target_str, 3)
+  end
+
   local session, remainder = string.match(target_str, "([^%.]+)%.?(.*)")
   local window = remainder
   local pane = nil
@@ -56,6 +65,11 @@ local function get_tmux_target(start_line)
     local _, line_or_tmux = string.match(tmux_line, conf.link_patterns.file_line_pattern)
     return parse_tmux_target_string(line_or_tmux)
   end
+
+  if conf.options.default_tmux_target then
+    return parse_tmux_target_string(conf.options.default_tmux_target)
+  end
+
   return nil, nil, nil
 end
 
