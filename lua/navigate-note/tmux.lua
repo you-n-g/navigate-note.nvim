@@ -67,7 +67,11 @@ local function get_tmux_target(start_line)
   end
 
   if conf.options.default_tmux_target then
-    return parse_tmux_target_string(conf.options.default_tmux_target)
+    local target = conf.options.default_tmux_target
+    if type(target) == "function" then
+      target = target()
+    end
+    return parse_tmux_target_string(target)
   end
 
   return nil, nil, nil
