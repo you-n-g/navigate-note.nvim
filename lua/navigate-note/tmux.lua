@@ -166,12 +166,12 @@ local function send_to_tmux(content, session, window, pane, post_action)
   end
 end
 
-function M.send_visual_selection_to_tmux()
+function M.send_visual_selection_to_tmux(post_action)
   local selection = utils.get_visual_selection()
   local start_pos = utils.get_visual_selection_pos().start
   local start_line = start_pos.row
   local session, window, pane = get_tmux_target(start_line)
-  send_to_tmux(selection, session, window, pane)
+  send_to_tmux(selection, session, window, pane, post_action)
   -- Exit visual mode
   vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
 end
@@ -187,12 +187,12 @@ function M.switch_to_tmux()
   end
 end
 
-function M.send_current_line_to_tmux()
+function M.send_current_line_to_tmux(post_action)
   local current_line = api.nvim_get_current_line()
   local cursor_pos = api.nvim_win_get_cursor(0)
   local start_line = cursor_pos[1]
   local session, window, pane = get_tmux_target(start_line)
-  send_to_tmux(current_line, session, window, pane)
+  send_to_tmux(current_line, session, window, pane, post_action)
 end
 
 M.send_to_tmux = send_to_tmux

@@ -9,6 +9,7 @@ local M = {
 				next = "<tab>",
 				prev = "<s-tab>",
 				open = "<m-cr>",
+				open_enter = "\\<cr>", -- Send to tmux and press Enter without switching window.
 				switch_back = "<m-h>", -- Switch back to the previous file from `nav.md`.
 				-- Editing
 				append_link = "<m-p>", -- (P)aste will more align with the meaning.

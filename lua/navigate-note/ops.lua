@@ -534,7 +534,7 @@ local function jump_mode_toggle(mode)
   update_extmark()
 end
 
-local function handle_m_cr()
+local function handle_open(post_action)
   local current_line = api.nvim_get_current_line()
   local file, _ = string.match(current_line, conf.link_patterns.file_line_pattern)
 
@@ -542,8 +542,8 @@ local function handle_m_cr()
     open_file_line()
   else
     if utils.is_in_block() then
-      tmux.send_current_line_to_tmux()
-    else
+      tmux.send_current_line_to_tmux(post_action)
+    elseif not post_action then
       vim.api.nvim_feedkeys(
         vim.api.nvim_replace_termcodes(options.keymaps["nav_mode"].open, true, false, true),
         "n",
@@ -571,7 +571,13 @@ local function enter_nav_mode()
   vim.keymap.set(
     "n",
     options.keymaps["nav_mode"].open,
-    handle_m_cr,
+    handle_open,
+    { noremap = true, silent = true, buffer = true }
+  )
+  vim.keymap.set(
+    "n",
+    options.keymaps["nav_mode"].open_enter,
+    function() handle_open("enter") end,
     { noremap = true, silent = true, buffer = true }
   )
   vim.keymap.set(
@@ -587,6 +593,16 @@ local function enter_nav_mode()
           "n",
           true
         )
+      end
+    end,
+    { noremap = true, silent = true, buffer = true }
+  )
+  vim.keymap.set(
+    "v",
+    options.keymaps["nav_mode"].open_enter,
+    function()
+      if utils.is_in_block() then
+        tmux.send_visual_selection_to_tmux("enter")
       end
     end,
     { noremap = true, silent = true, buffer = true }
