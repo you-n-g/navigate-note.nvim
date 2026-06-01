@@ -72,9 +72,52 @@ function M.is_tmux(link_string)
   if not link_string then
     return false
   end
+  local link = M.get_link_at_cursor(link_string)
+  return link ~= nil and link.file == "tmux"
+end
+
+function M.get_link_at_cursor(link_string, cursor_col)
+  if not link_string then
+    return nil
+  end
+
   local conf = get_conf()
-  local file, _ = string.match(link_string, conf.link_patterns.file_line_pattern)
-  return file == "tmux"
+  local current_line = nil
+  pcall(function()
+    current_line = vim.api.nvim_get_current_line()
+  end)
+
+  if not cursor_col and current_line == link_string then
+    cursor_col = vim.api.nvim_win_get_cursor(0)[2] + 1
+  end
+
+  local first_link = nil
+  local search_start = 1
+  while true do
+    local start_pos, end_pos, file, target = string.find(link_string, conf.link_patterns.file_line_pattern, search_start)
+    if not start_pos then
+      break
+    end
+
+    local link = {
+      file = file,
+      target = target,
+      start_pos = start_pos,
+      end_pos = end_pos,
+    }
+
+    if not first_link then
+      first_link = link
+    end
+
+    if cursor_col and start_pos <= cursor_col and cursor_col <= end_pos then
+      return link
+    end
+
+    search_start = end_pos + 1
+  end
+
+  return first_link
 end
 
 function M.get_visual_selection_pos()

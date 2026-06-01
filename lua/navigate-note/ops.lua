@@ -265,21 +265,19 @@ end
 -- Function to open the file and line under cursor
 local function open_file_line()
   local current_line = api.nvim_get_current_line()
-  if utils.is_tmux(current_line) then -- Use the new is_tmux function
+  local link = utils.get_link_at_cursor(current_line)
+  if link and link.file == "tmux" then
     tmux.switch_to_tmux()
-  else
-    local file, line = string.match(current_line, conf.link_patterns.file_line_pattern)
-    if file then
-      utils.backward() --- it is the key to popup the `nav_md_file` from the jumplist
-      api.nvim_command("edit " .. file)
-      if M.mode.jump == "line" and line and line:match("^%d+$") then
-        api.nvim_win_set_cursor(0, { tonumber(line), 0 })
-      else
-        print("Opened file: " .. file .. " (no specific line number provided)")
-      end
+  elseif link then
+    utils.backward() --- it is the key to popup the `nav_md_file` from the jumplist
+    api.nvim_command("edit " .. link.file)
+    if M.mode.jump == "line" and link.target and link.target:match("^%d+$") then
+      api.nvim_win_set_cursor(0, { tonumber(link.target), 0 })
     else
-      print("No valid file:line pattern under cursor")
+      print("Opened file: " .. link.file .. " (no specific line number provided)")
     end
+  else
+    print("No valid file:line pattern under cursor")
   end
 end
 local function get_entry()

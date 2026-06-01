@@ -83,8 +83,10 @@ end
 local function get_tmux_target(start_line)
   local tmux_line = get_recent_tmux_line(start_line)
   if tmux_line then
-    local _, target = string.match(tmux_line, conf.link_patterns.file_line_pattern)
-    return parse_tmux_target_string(target)
+    local link = utils.get_link_at_cursor(tmux_line)
+    if link and link.file == "tmux" then
+      return parse_tmux_target_string(link.target)
+    end
   end
 
   if conf.options.default_tmux_target then
@@ -199,11 +201,11 @@ end
 
 function M.switch_to_tmux()
   local current_line = api.nvim_get_current_line()
-  local file, line_or_tmux = string.match(current_line, conf.link_patterns.file_line_pattern)
-  if file and utils.is_tmux(current_line) then
-    local session, window, pane = parse_tmux_target_string(line_or_tmux)
+  local link = utils.get_link_at_cursor(current_line)
+  if link and link.file == "tmux" then
+    local session, window, pane = parse_tmux_target_string(link.target)
     if switch_tmux(session, window, pane) then
-      print("Switched to tmux session: " .. line_or_tmux)
+      print("Switched to tmux session: " .. link.target)
     end
   end
 end
