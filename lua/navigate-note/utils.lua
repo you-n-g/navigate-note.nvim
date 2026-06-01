@@ -74,7 +74,7 @@ function M.is_tmux(link_string)
   end
   local conf = get_conf()
   local file, _ = string.match(link_string, conf.link_patterns.file_line_pattern)
-  return file == "T"
+  return file == "tmux"
 end
 
 function M.get_visual_selection_pos()

@@ -4,6 +4,26 @@ local conf = require("navigate-note.conf")
 
 local M = {}
 
+local function trim(str)
+  return string.gsub(str, "^%s*(.-)%s*$", "%1")
+end
+
+local function normalize_target_string(target_str)
+  target_str = trim(target_str)
+
+  if string.match(target_str, "^tmux://") then
+    return string.sub(target_str, 8)
+  end
+
+  -- The markdown link parser reads [[tmux://session:window.pane]] as
+  -- file="tmux" and target="//session:window.pane".
+  if string.match(target_str, "^//") then
+    return string.sub(target_str, 3)
+  end
+
+  return target_str
+end
+
 local function get_recent_tmux_line(start_line)
   for i = start_line, 1, -1 do
     local line = api.nvim_buf_get_lines(0, i - 1, i, false)[1]
@@ -40,30 +60,31 @@ local function parse_tmux_target_string(target_str)
     return nil, nil, nil
   end
 
-  -- Strip T: prefix if present (e.g. from default_tmux_target = "T:session.window")
-  if string.match(target_str, "^T:") then
-    target_str = string.sub(target_str, 3)
+  target_str = normalize_target_string(target_str)
+  if target_str == "" then
+    return nil, nil, nil
   end
 
-  local session, remainder = string.match(target_str, "([^%.]+)%.?(.*)")
-  local window = remainder
+  local session, window = string.match(target_str, "^([^:]+):(.+)$")
   local pane = nil
 
-  if remainder and remainder ~= "" then
-    local w, p = remainder:match("^(.*)%.([^%.]+)$")
+  if session then
+    local w, p = window:match("^(.*)%.([^%.]+)$")
     if w and (p:match("^%d+$") or p == "{current}") then
       window = w
       pane = p
     end
+    return resolve_target(session, window, pane)
   end
-  return resolve_target(session, window, pane)
+
+  return resolve_target(target_str, nil, nil)
 end
 
 local function get_tmux_target(start_line)
   local tmux_line = get_recent_tmux_line(start_line)
   if tmux_line then
-    local _, line_or_tmux = string.match(tmux_line, conf.link_patterns.file_line_pattern)
-    return parse_tmux_target_string(line_or_tmux)
+    local _, target = string.match(tmux_line, conf.link_patterns.file_line_pattern)
+    return parse_tmux_target_string(target)
   end
 
   if conf.options.default_tmux_target then
@@ -196,5 +217,6 @@ function M.send_current_line_to_tmux(post_action)
 end
 
 M.send_to_tmux = send_to_tmux
+M.parse_tmux_target_string = parse_tmux_target_string
 
 return M
