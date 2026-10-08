@@ -1,5 +1,5 @@
 *navigate-note.txt*
-                                  For NVIM v0.8.0    Last change: 2026 June 01
+                               For NVIM v0.8.0    Last change: 2026 October 08
 
 ==============================================================================
 Table of Contents                            *navigate-note-table-of-contents*
@@ -81,12 +81,14 @@ For other configurations, please refer to more test configs
 - Jump Mode
     - Toggle between jumping to the file only or to the exact `file:line` with `<m-l>`.
     - In file-only mode, go to the start of the file; in file:line mode, go to the specific line.
+    - Add an optional display alias after `|`, such as `[[src/main.lua:42|entry point]]` or `[[README.md|documentation]]`.
 - Tmux Integration
     - Links in `nav.md` can now be used to switch to specific Tmux sessions or windows.
     - Format: `[[tmux://session_name]]` to switch to a session.
     - Format: `[[tmux://session_name:window_name]]` to switch to a specific window by name.
     - Format: `[[tmux://session_name:window_index]]` to switch to a specific window by index.
     - Format: `[[tmux://session_name:window_name.pane_index]]` or `[[tmux://session_name:window_index.pane_index]]` to switch to a specific pane within a window.
+    - Tmux links also support display aliases, such as `[[tmux://session_name:window_name|agent]]`.
     - You can use `{current}` as a placeholder for the current session, window, or pane.
         - Example: `[[tmux://{current}:{current}.{current}]]` targets the currently active pane.
         - Example: `[[tmux://my_session:my_window.{current}]]` targets the active pane in a specific window.
