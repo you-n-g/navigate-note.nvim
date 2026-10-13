@@ -8,6 +8,61 @@ describe("setup", function()
   end)
 end)
 
+describe("navigation previews", function()
+  local dir, buf, first_file, second_file
+
+  before_each(function()
+    plugin.setup()
+    dir = vim.fn.tempname()
+    vim.fn.mkdir(dir, "p")
+    first_file = dir .. "/first.lua"
+    second_file = dir .. "/second.lua"
+    vim.fn.writefile({ "first file" }, first_file)
+    local lines = {}
+    for i = 1, 20 do
+      lines[i] = "second file line " .. i
+    end
+    vim.fn.writefile(lines, second_file)
+    buf = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_buf_set_name(buf, dir .. "/nav.md")
+    vim.api.nvim_set_current_buf(buf)
+  end)
+
+  after_each(function()
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+      if vim.api.nvim_win_get_config(win).relative ~= "" then
+        vim.api.nvim_win_close(win, true)
+      end
+    end
+    vim.api.nvim_buf_delete(buf, { force = true })
+    vim.fn.delete(dir, "rf")
+  end)
+
+  local function tab_and_preview(line)
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, { line })
+    vim.api.nvim_win_set_cursor(0, { 1, 0 })
+    vim.fn.maparg("<Tab>", "n", false, true).callback()
+    local previews = {}
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+      if vim.api.nvim_win_get_config(win).relative ~= "" then
+        previews[#previews + 1] = vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(win), 0, -1, false)
+      end
+    end
+    assert.are.equal(1, #previews)
+    assert.are.same({ 1, line:find("[[" .. second_file, 1, true) - 1 }, vim.api.nvim_win_get_cursor(0))
+    assert.are.equal("second file line 8", previews[1][1])
+    assert.are.equal("second file line 15", previews[1][8])
+  end
+
+  it("previews the second file and its line when Tab lands on it", function()
+    tab_and_preview("[[" .. first_file .. ":1]] [[" .. second_file .. ":15|second]]")
+  end)
+
+  it("previews a file link after a tmux link on the same line", function()
+    tab_and_preview("[[tmux://session:window.0|agent]] [[" .. second_file .. ":15|second]]")
+  end)
+end)
+
 describe("tmux links", function()
   before_each(function()
     plugin.setup()

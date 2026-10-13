@@ -198,7 +198,10 @@ local function goto_cursor(bufnr, match_item)
   -- Extract the file path and line number from the match_item
   local current_line = api.nvim_buf_get_lines(bufnr, row - 1, row, false)[1]
   if not utils.is_tmux(current_line) then -- Use the new is_tmux function
-    local file, line_or_tmux = string.match(current_line, conf.link_patterns.file_line_pattern)
+    -- Preview the link the cursor just landed on, not the line's first link:
+    -- a line often starts with a tmux link and carries a file link later on.
+    local link = utils.get_link_at_cursor(current_line)
+    local file, line_or_tmux = link.file, link.target
     -- Create a hover window to show the context of the file and line
     local line = line_or_tmux
     if line and not line:match("^%d*$") then
